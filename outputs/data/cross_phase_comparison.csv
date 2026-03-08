@@ -1,7 +1,7 @@
 Phase,Target,Best Model,R2_LOO,RMSE
-Top Speed,Peak Velocity,Stepwise OLS [A (6 PCs)],0.2348,0.6162
+Top Speed,Peak Velocity,Stepwise OLS [A (6 PCs)],0.346,0.579
 Acceleration,0-10m,kNN-5 [B: Bio],0.0288,0.1347
 Acceleration,10-20m,kNN-5 [B: Bio],0.0621,0.108
-Max Velocity,20-30m,kNN-5  B:Bio,0.107,
-Max Velocity,30-40m,RF     B:Bio,0.198,
-Max Velocity,40-50m,RF     B:Bio,0.245,
+Max Velocity,20-30m,RF     B:Bio,0.112,
+Max Velocity,30-40m,RF     B:Bio,0.142,
+Max Velocity,40-50m,RF     B:Bio,0.182,
