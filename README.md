@@ -59,9 +59,9 @@ PCA on the 30 × 19,392 feature matrix yields **29 principal components** (retai
 | PC | Variance | Interpretation |
 |----|----------|----------------|
 | PC1 | 48% | Gross posture, forward lean, hip extension |
-| PC5 | 2.2% | Forward lean coordination (hip-trunk-knee coupling) |
-| PC8 | 1.1% | Hip-knee synchronisation timing — **#2 predictor** |
-| PC11 | 0.8% | Leg extension & ground contact sequencing |
+| PC5 | 2.2% | **Forward Torso Lean** — ability to maintain 45–50° forward lean through each stride |
+| PC8 | 1.1% | **Hip Extension & Knee Drive Timing** — faster knee drive from swing leg, faster hip extension from stance leg |
+| PC11 | 0.8% | **Directional Force Optimisation** — maximised horizontal force development, minimised vertical force |
 
 ### 4 — Biomechanical Feature Engineering (Feature Set B)
 18 hand-crafted metrics extracted per participant across 6 categories:
@@ -158,8 +158,8 @@ Single and Multi-Component Reconstruction render actual 3D skeleton postures at 
 - LOO-CV R² peaks at **6 PCs** (R² ≈ 0.32) then collapses as more PCs added
 - Full 29-PC set: R²_LOO < 0 on every algorithm
 - **PC8** (1.1% of variance) = **#2 strongest predictor** after avg_vert_oscillation
-  - Movement pattern: hip-knee synchronisation in swing phase
-  - Subtle ≠ unimportant
+  - Movement pattern: hip extension & knee drive timing — faster knee drive from swing leg, faster hip extension from stance leg
+  - Subtle ≠ unimportant; timing coordination matters more than variance explained
 
 ---
 
@@ -177,22 +177,17 @@ All 30 participants. Stars mark peak velocity; shaded zones show top-speed maint
 
 ---
 
-### Single Component Reconstruction — PC5
-Sagittal / Frontal / Transverse projections. Red = 5th percentile (slow), Black = mean, Blue = 95th percentile (fast).
+### Multi-Component Reconstruction — Top Speed Phase (PC5 + PC8 + PC11, Males)
+Combined effect of the three selected PCs at 5 gait-cycle positions during top-speed running. Captures forward torso lean, hip extension/knee drive timing, and directional force optimisation.
 
-![SCR PC5](outputs/figures/SCR_PC5.png)
-
----
-
-### Single Component Reconstruction — PC8 (Hip-Knee Timing)
-![SCR PC8](outputs/figures/SCR_PC8.png)
+![MCR Top Speed Male](outputs/figures/MCR_M_figure6.png)
 
 ---
 
-### Multi-Component Reconstruction (All Retained PCs)
-Combined effect of all retained PCs at 5 gait-cycle positions.
+### Multi-Component Reconstruction — Acceleration Phase (PC1–PC4, Males, First 4 Strides)
+PC1–PC4 reconstruction across the first 4 strides of block acceleration. Shows how gross postural patterns evolve from block clearance into upright sprinting.
 
-![MCR Figure 6](outputs/figures/MCR_figure6.png)
+![MCR Acceleration Male](outputs/figures/MCR_accel_M.png)
 
 ---
 
@@ -281,11 +276,65 @@ jupyter notebook sprint_fPCA_pipeline.ipynb
 
 ## References
 
-Weyand, P. G., Sternlight, D. B., Bellizzi, M. J., & Wright, S. (2000). Faster top running speeds are achieved with greater ground forces not more rapid leg movements. *Journal of Applied Physiology*, 89(5), 1991–1999.
+Beaudette, S. M., Zwambag, D. P., Graham, R. B., & Brown, S. H. M. (2019). Discriminating spatiotemporal movement strategies during spine flexion-extension in healthy individuals. *The Spine Journal*, 19(7), 1264–1275. https://doi.org/10.1016/j.spinee.2019.02.002
 
-Weyand, P. G., Sandell, R. F., Prime, D. N., & Bundle, M. W. (2010). The biological limits to running speed are imposed from the ground up. *Journal of Applied Physiology*, 108(4), 950–961.
+Bholowalia, P., & Kumar, A. (2014). EBK-Means: A Clustering Technique based on Elbow Method and K-Means in WSN. *International Journal of Computer Applications*, 105(9), 17–24.
 
-Velluci, C., & Beaudette, S. M. (2023). Functional principal component analysis of whole-body kinematics during sprint acceleration. *[Journal details pending].*
+Braunstein, B., Goldmann, J.-P., Albracht, K., Sanno, M., Willwacher, S., Heinrich, K., Herrmann, V., & Brüggemann, G.-P. (2013). Joint specific contribution of mechanical power and work during acceleration and top speed in elite sprinters. *ISBS — Conference Proceedings Archive*.
+
+Brazil, A., Exell, T., Wilson, C., Willwacher, S., Bezodis, I., & Irwin, G. (2017). Lower limb joint kinetics in the starting blocks and first stance in athletic sprinting. *Journal of Sports Sciences*, 35(16), 1629–1635. https://doi.org/10.1080/02640414.2016.1227465
+
+Brazil, A., Exell, T., Wilson, C., Willwacher, S., Bezodis, I. N., & Irwin, G. (2018). Joint kinetic determinants of starting block performance in athletic sprinting. *Journal of Sports Sciences*, 36(14), 1656–1662. https://doi.org/10.1080/02640414.2017.1409608
+
+Čoh, M., Hébert-Losier, K., Štuhec, S., Babić, V., & Supej, M. (2018). Kinematics of Usain Bolt's maximal sprint velocity. *Kinesiology*, 50(2), 172–180. https://doi.org/10.26582/k.50.2.10
+
+Colyer, S. L., Nagahara, R., Takai, Y., & Salo, A. I. T. (2018). How sprinters accelerate beyond the velocity plateau of soccer players: Waveform analysis of ground reaction forces. *Scandinavian Journal of Medicine & Science in Sports*, 28(12), 2527–2535. https://doi.org/10.1111/sms.13302
+
+Daley, M. A., & Biewener, A. A. (2006). Running over rough terrain reveals limb control for intrinsic stability. *Proceedings of the National Academy of Sciences*, 103(42), 15681–15686. https://doi.org/10.1073/pnas.0601473103
+
+Debaere, S., Delecluse, C., Aerenhouts, D., Hagman, F., & Jonkers, I. (2013). From block clearance to sprint running: Characteristics underlying an effective transition. *Journal of Sports Sciences*, 31(2), 137–149. https://doi.org/10.1080/02640414.2012.722225
+
+Debaere, S., Delecluse, C., Aerenhouts, D., Hagman, F., & Jonkers, I. (2015). Control of propulsion and body lift during the first two stances of sprint running: A simulation study. *Journal of Sports Sciences*, 33(19), 2016–2024. https://doi.org/10.1080/02640414.2015.1026375
+
+Dhawale, N., & Venkadesan, M. (2023). How human runners regulate footsteps on uneven terrain. *eLife*, 12, e67177. https://doi.org/10.7554/eLife.67177
+
+Diker, G., Müniroğlu, S., Ön, S., Özkamçı, H., & Darendeli, A. (2021). The relationship between sprint performance and both lower and upper extremity explosive strength in young soccer players. *Pedagogy of Physical Culture and Sports*, 25(1). https://doi.org/10.15561/26649837.2021.0102
+
+Geyer, H., Seyfarth, A., & Blickhan, R. (2006). Compliant leg behaviour explains basic dynamics of walking and running. *Proceedings of the Royal Society B*, 273(1603), 2861–2867. https://doi.org/10.1098/rspb.2006.3637
+
+Higashihara, A., Nagano, Y., Ono, T., & Fukubayashi, T. (2018). Differences in hamstring activation characteristics between the acceleration and maximum-speed phases of sprinting. *Journal of Sports Sciences*, 36(12), 1313–1318. https://doi.org/10.1080/02640414.2017.1375548
+
+Hsiao, H., Knarr, B. A., Higginson, J. S., & Binder-Macleod, S. A. (2015). The relative contribution of ankle moment and trailing limb angle to propulsive force during gait. *Human Movement Science*, 39, 212–221. https://doi.org/10.1016/j.humov.2014.11.008
+
+Kariyama, Y., & Zushi, K. (2016). Relationships between lower-limb joint kinetic parameters of sprint running and rebound jump during the support phases. *The Journal of Physical Fitness and Sports Medicine*, 5(2), 187–193. https://doi.org/10.7600/jpfsm.5.187
+
+McKenna, M., & Riches, P. E. (2007). A comparison of sprinting kinematics on two types of treadmill and over-ground. *Scandinavian Journal of Medicine & Science in Sports*, 17(6), 649–655. https://doi.org/10.1111/j.1600-0838.2006.00625.x
+
+Morin, J.-B., Bourdin, M., Edouard, P., Peyrot, N., Samozino, P., & Lacour, J.-R. (2012). Mechanical determinants of 100-m sprint running performance. *European Journal of Applied Physiology*, 112(11), 3921–3930. https://doi.org/10.1007/s00421-012-2379-8
+
+Morin, J.-B., Edouard, P., & Samozino, P. (2011). Technical ability of force application as a determinant factor of sprint performance. *Medicine and Science in Sports and Exercise*, 43(9), 1680–1688. https://doi.org/10.1249/MSS.0b013e318216ea37
+
+Rabita, G., Dorel, S., Slawinski, J., Sàez-de-Villarreal, E., Couturier, A., Samozino, P., & Morin, J.-B. (2015). Sprint mechanics in world-class athletes: A new insight into the limits of human locomotion. *Scandinavian Journal of Medicine & Science in Sports*, 25(5), 583–594. https://doi.org/10.1111/sms.12389
+
+Sado, N., Yoshioka, S., & Fukashiro, S. (2020). Three-dimensional kinetic function of the lumbo-pelvic-hip complex during block start. *PloS One*, 15(3), e0230145. https://doi.org/10.1371/journal.pone.0230145
+
+Schache, A. G., Blanch, P. D., Dorn, T. W., Brown, N. A. T., Rosemond, D., & Pandy, M. G. (2011). Effect of running speed on lower limb joint kinetics. *Medicine and Science in Sports and Exercise*, 43(7), 1260–1271. https://doi.org/10.1249/MSS.0b013e3182084929
+
+Seethapathi, N., & Srinivasan, M. (2019). Step-to-step variations in human running reveal how humans run without falling. *eLife*, 8, e38371. https://doi.org/10.7554/eLife.38371
+
+Slawinski, J., Bonnefoy, A., Levêque, J.-M., Ontanon, G., Riquet, A., Dumas, R., & Chèze, L. (2010). Kinematic and kinetic comparisons of elite and well-trained sprinters during sprint start. *Journal of Strength and Conditioning Research*, 24(4), 896–905. https://doi.org/10.1519/JSC.0b013e3181ad3448
+
+Valamatos, M. J., Abrantes, J. M., Carnide, F., Valamatos, M.-J., & Monteiro, C. P. (2022). Biomechanical performance factors in the track and field sprint start: A systematic review. *International Journal of Environmental Research and Public Health*, 19(7), 4074. https://doi.org/10.3390/ijerph19074074
+
+Vellucci, C. L., & Beaudette, S. M. (2022). A need for speed: Objectively identifying full-body kinematic and neuromuscular features associated with faster sprint velocities. *Frontiers in Sports and Active Living*, 4, 1094163. https://doi.org/10.3389/fspor.2022.1094163
+
+von Lieres Und Wilkau, H. C., Irwin, G., Bezodis, N. E., Simpson, S., & Bezodis, I. N. (2020). Phase analysis in maximal sprinting: An investigation of step-to-step technical changes between the initial acceleration, transition and maximal velocity phases. *Sports Biomechanics*, 19(2), 141–156. https://doi.org/10.1080/14763141.2018.1473479
+
+Werkhausen, A., Willwacher, S., & Albracht, K. (2021). Medial gastrocnemius muscle fascicles shorten throughout stance during sprint acceleration. *Scandinavian Journal of Medicine & Science in Sports*, 31(7), 1471–1480. https://doi.org/10.1111/sms.13956
+
+Weyand, P. G., Sandell, R. F., Prime, D. N. L., & Bundle, M. W. (2010). The biological limits to running speed are imposed from the ground up. *Journal of Applied Physiology*, 108(4), 950–961. https://doi.org/10.1152/japplphysiol.00947.2009
+
+Yada, K., Ae, M., Tanigawa, S., Ito, A., Fukuda, K., & Kijima, K. (2011). Standard motion of sprint running for male elite and student sprinters. *ISBS — Conference Proceedings Archive*.
 
 ---
 
