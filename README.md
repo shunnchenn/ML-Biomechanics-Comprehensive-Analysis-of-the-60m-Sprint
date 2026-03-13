@@ -231,9 +231,11 @@ Sprint velocity and kinematic profiles split by sex (15M / 15F).
 ```
 ML-Biomechanics-Comprehensive-Analysis-of-the-60m-Sprint/
 ├── sprint_fPCA_pipeline.ipynb       ← Single executable notebook
-├── bio_features_panelA.png          ← All 18 bio features overview
-├── bio_features_panelB.png          ← Model comparison bar chart
-├── bio_features_panelCD.png         ← Bio vs fPC head-to-head
+└── outputs/
+    ├── figures/
+    │   ├── bio_features_panelA.png          ← All 18 bio features overview
+    │   ├── bio_features_panelB.png          ← Model comparison bar chart
+    │   ├── bio_features_panelCD.png         ← Bio vs fPC head-to-head
 └── outputs/
     ├── data/
     │   ├── metadata.csv                        (participant ID, sex, velocity, height)
