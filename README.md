@@ -8,7 +8,7 @@
 
 This project applies **functional Principal Component Analysis (fPCA)** and a full suite of machine learning models to whole-body kinematic data from competitive sprinters, with the goal of predicting sprint velocity and identifying movement patterns that differentiate fast from slow athletes.
 
-Key finding: **traditional biomechanical summary statistics (n=18) outperform full fPCA (n=29 PCs) on every matched algorithm** when evaluated via LOO-CV on n=31 subjects — but fPCA provides mechanistic insight that scalars cannot.
+Key finding: **traditional biomechanical summary statistics (n=18) outperform full fPCA (n=29 PCs) on every matched algorithm** when evaluated via LOO-CV on n=30 subjects — but fPCA provides mechanistic insight that scalars cannot.
 
 ---
 
@@ -24,11 +24,11 @@ Existing research examines acceleration or maximum velocity in isolation using l
 
 ## Study Design
 
-**31 OUA/USports-level sprinters** (16M / 15F) completed maximal-effort 60-metre sprints from blocks, instrumented with a **64-marker inertial measurement system** capturing whole-body three-dimensional kinematics at 60 Hz.
+**30 OUA/USports-level sprinters** (15M / 15F) completed maximal-effort 60-metre sprints from blocks, instrumented with a **64-marker inertial measurement system** capturing whole-body three-dimensional kinematics at 60 Hz.
 
 | Dimension | Detail |
 |-----------|--------|
-| Participants | 31 (16 Male, 15 Female) |
+| Participants | 30 (15 Male, 15 Female) |
 | Competition level | OUA / USports |
 | Sprint distance | 60 metres (block start) |
 | Capture rate | 60 Hz |
@@ -54,7 +54,7 @@ Five strides around peak velocity are identified per participant. Each stride is
 - Averaged across strides into a single **19,392-element vector** per participant
 
 ### 3 — Functional PCA (fPCA)
-PCA on the 31 × 19,392 feature matrix yields **29 principal components** (retaining >95% of variance). Each PC captures a coordinated pattern of joint motion across the full gait cycle:
+PCA on the 30 × 19,392 feature matrix yields **29 principal components** (retaining >95% of variance). Each PC captures a coordinated pattern of joint motion across the full gait cycle:
 
 | PC | Variance | Interpretation |
 |----|----------|----------------|
@@ -76,7 +76,7 @@ PCA on the 31 × 19,392 feature matrix yields **29 principal components** (retai
 | Anthropometric | leg length | 1 |
 
 ### 5 — Model Comparison (26 Models × 4 Feature Sets)
-All models evaluated via **Leave-One-Out Cross-Validation (LOO-CV)** — gold standard at n=31. Four feature sets compared:
+All models evaluated via **Leave-One-Out Cross-Validation (LOO-CV)** — gold standard at n=30. Four feature sets compared:
 
 | Set | Name | Features | Description |
 |-----|------|----------|-------------|
@@ -112,7 +112,7 @@ Single and Multi-Component Reconstruction render actual 3D skeleton postures at 
 
 ## Results
 
-### Model Performance — LOO-CV R² (n=31)
+### Model Performance — LOO-CV R² (n=30)
 
 | Rank | Model | Feature Set | R²_LOO | RMSE (m/s) | Status |
 |------|-------|-------------|--------|------------|--------|
@@ -141,7 +141,7 @@ Single and Multi-Component Reconstruction render actual 3D skeleton postures at 
 | Random Forest | 0.170 | -0.110 | Bio ✅ |
 | XGBoost | 0.091 | -0.045 | Bio ✅ |
 
-**Why:** n=31 × 29 PCs is a near-saturated model space. LOO-CV exposes overfitting that train R² conceals (train R² ≈ 1.0 for all fPC models). Bio features (18 dims) have a better sample-to-feature ratio.
+**Why:** n=30 × 29 PCs is a near-saturated model space. LOO-CV exposes overfitting that train R² conceals (train R² ≈ 1.0 for all fPC models). Bio features (18 dims) have a better sample-to-feature ratio.
 
 ### Feature Importance — Top 5 Bio Predictors
 
@@ -166,7 +166,7 @@ Single and Multi-Component Reconstruction render actual 3D skeleton postures at 
 ## Figures
 
 ### Velocity–Distance Profiles
-All 31 participants. Stars mark peak velocity; shaded zones show top-speed maintenance windows.
+All 30 participants. Stars mark peak velocity; shaded zones show top-speed maintenance windows.
 
 ![Velocity Curves](outputs/figures/velocity_curves.png)
 
@@ -225,7 +225,7 @@ Pairwise correlations among all 18 biomechanical features.
 ---
 
 ### Sex Differences
-Sprint velocity and kinematic profiles split by sex (16M / 15F).
+Sprint velocity and kinematic profiles split by sex (15M / 15F).
 
 ![Sex Boxplots](outputs/figures/sex_boxplots.png)
 
@@ -234,7 +234,7 @@ Sprint velocity and kinematic profiles split by sex (16M / 15F).
 ## Repository Structure
 
 ```
-sprint-fPCA-ml/
+ML-Biomechanics-Comprehensive-Analysis-of-the-60m-Sprint/
 ├── sprint_fPCA_pipeline.ipynb       ← Single executable notebook
 ├── bio_features_panelA.png          ← All 18 bio features overview
 ├── bio_features_panelB.png          ← Model comparison bar chart
@@ -242,7 +242,7 @@ sprint-fPCA-ml/
 └── outputs/
     ├── data/
     │   ├── metadata.csv                        (participant ID, sex, velocity, height)
-    │   ├── sprint_biomechanics_metrics.csv     (18 biomechanical metrics × 31 participants)
+    │   ├── sprint_biomechanics_metrics.csv     (18 biomechanical metrics × 30 participants)
     │   ├── model_comparison.csv                (LOO-CV results, all 26 models)
     │   ├── split_times.csv                     (radar-measured split times)
     │   ├── sex_differences.csv                 (M/F comparison)
