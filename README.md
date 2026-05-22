@@ -76,11 +76,8 @@ Each clip starts automatically at the moment the sprinter clears the blocks (idl
 **Modelling.** Kinematic models for acceleration plateaued at a modest ceiling — best LOO-CV R² = **0.186** (LASSO on accelerometer fPC scores, 0–10 m). Ridge, Random Forest, kNN, SVR, and XGBoost all returned near-zero or negative LOO-CV R² for predicting split-time from kinematics alone.
 
 **What the data says faster acceleration *looks like*:**
-- **Greater forward trunk lean** at touchdown across Steps 3–8
-- **More horizontal shin angle** at touchdown
-- **Forward, higher drive-leg knee** at ankle-cross (longer effective stride)
-- **Greater hip / ankle extension at toe-off** (more complete triple-extension)
-- **More vigorous arm swing**
+- **Greater maintanenace of forward trunk lean from Blocks to Step 8 while maintaining forward knee drive** 
+- **Greater arm swing ROM**
 
 **Phase descriptives:**
 - Distance to reach 95 % of peak velocity: **21.96 ± 5.58 m** (range 14.89 → 42.79)
@@ -109,9 +106,9 @@ Each clip starts automatically at the moment the sprinter clears the blocks (idl
 3. **Stride frequency at top speed** — opposing direction (the classic length-vs-frequency trade-off)
 
 **What the data says faster top-end *looks like*:**
-- **More erect trunk** (drag-minimising posture)
-- **Forward foot-strike** (active retraction reduces braking)
-- **Lower CoM nadir at full support** (SLIP-like spring mechanics)
+- **More upright trunk**
+- **Forward foot-strike** 
+- **Lower CoM at full support** 
 - **Greater hip extension and plantarflexion at toe-off** (ankle-dominant propulsion)
 - **Higher / more forward knee** at max vertical projection
 - **Compact, near-vertical shank at touchdown** (minimises horizontal braking)
