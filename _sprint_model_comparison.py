@@ -445,15 +445,8 @@ ax_tbl.text(0.5, banner_y + row_height / 2 - 0.04, banner_txt,
             ha="center", va="center", fontsize=10.5, fontweight="bold",
             color=banner_tc, transform=ax_tbl.transAxes)
 
-# Red border around entire table
-border = mpatches.FancyBboxPatch(
-    (0, 0.02), 1.0, 0.96,
-    boxstyle="round,pad=0.005", facecolor="none",
-    edgecolor="#d62728", lw=2.5,
-    transform=ax_tbl.transAxes, clip_on=False)
-ax_tbl.add_patch(border)
-
-ax_tbl.set_title("Bio vs fPC: Matched Algorithm Comparison",
+ax_tbl.set_title("Bio vs fPC: Matched Algorithm Comparison\n"
+                 r"Target: Peak Velocity (m/s)",
                  fontsize=12, fontweight="bold", pad=10)
 
 # ── Right: Overfitting diagnostic ────────────────────────────────────────
@@ -466,18 +459,19 @@ ax_ov.fill_between(ks, loo_r2s, train_r2s,
 ax_ov.axhline(0, color="grey", ls=":", lw=0.8)
 ax_ov.axvline(len(RETAINED_PCS), color="#ff7f0e", ls="--", lw=1.5,
               label=f"Stepwise selection ({len(RETAINED_PCS)} PCs)")
-ax_ov.set_xlabel("Number of PCs in model (ranked by |r| with velocity)",
+ax_ov.set_xlabel("Number of PCs in model (ranked by |r| with peak velocity)",
                  fontsize=10)
-ax_ov.set_ylabel("R²", fontsize=11)
-ax_ov.set_title("Overfitting Diagnostic: Train vs LOO-CV R²",
+ax_ov.set_ylabel("R²  [target: peak velocity, m/s]", fontsize=10)
+ax_ov.set_title("Overfitting Diagnostic: Train vs LOO-CV R²\n"
+                r"Target: Peak Velocity (m/s)",
                 fontweight="bold", fontsize=12)
 ax_ov.legend(fontsize=9)
 ax_ov.set_xticks(list(ks))
 ax_ov.grid(alpha=0.3)
 ax_ov.set_ylim(min(loo_r2s) - 0.05, max(train_r2s) + 0.05)
 
-fig1.suptitle(f"Sprint Velocity Prediction  (n={n_subj} subjects)",
-              fontsize=14, fontweight="bold", y=1.02)
+fig1.suptitle(f"Sprint Velocity Prediction  ·  Target: Peak Velocity (m/s)  ·  n={n_subj} subjects",
+              fontsize=13, fontweight="bold", y=1.02)
 fig1.tight_layout()
 out1 = FIG_DIR / "ml_bio_vs_fpc_panel.png"
 fig1.savefig(str(out1), dpi=150, bbox_inches="tight")
@@ -535,15 +529,16 @@ if not np.isnan(comb_best):
                 label=f"Best Combined R²={comb_best:.3f}")
 
 ax2.axvline(0, color="black", lw=1.2)
-ax2.text(0.005, -0.85,
+ax2.text(min(r2_vals) + 0.01, len(labels) - 0.6,
          "← Negative R² = worse than mean prediction (overfitting)",
-         fontsize=8, color="#d62728", style="italic")
+         fontsize=8, color="#d62728", style="italic", va="top")
 
 ax2.set_yticks(y_pos)
 ax2.set_yticklabels(labels, fontsize=8.5)
 ax2.invert_yaxis()
-ax2.set_xlabel("LOO-CV R²", fontsize=11)
-ax2.set_title(f"All {len(res_df)} Models Ranked by LOO-CV R²  (n={n_subj} subjects)",
+ax2.set_xlabel("LOO-CV R²  [target: peak velocity, m/s]", fontsize=11)
+ax2.set_title(f"All {len(res_df)} Models Ranked by LOO-CV R²\n"
+              f"Target: Peak Velocity (m/s)  ·  n={n_subj} subjects",
               fontweight="bold", fontsize=13)
 ax2.grid(alpha=0.25, axis="x")
 ax2.set_xlim(min(r2_vals) - 0.08, max(r2_vals) + 0.12)
