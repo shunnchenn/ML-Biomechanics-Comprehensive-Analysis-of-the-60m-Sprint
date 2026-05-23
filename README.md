@@ -199,6 +199,30 @@ Stars mark peak velocity; shading marks the top-speed maintenance window.
 
 ---
 
+### Acceleration fPCA by Step Range — Fast / Median / Slow Overlay
+
+Running fPCA **separately for early acceleration (Steps 3-8) and late acceleration / transition (Steps 9-16)** highlights *where* in the acceleration phase the kinematic signal for speed is strongest. Each figure overlays the slowest, median, and fastest sprinter in the cohort at three within-stride phase points (Touchdown / Mid-Stance / Toe-Off) in both sagittal and frontal views.
+
+| Step range | Top velocity-correlated PC | r with peak velocity (n = 30) |
+|------------|----------------------------|------------------------------:|
+| **Steps 3-8** (early acceleration) | PC5 | **r = +0.53** |
+| **Steps 9-16** (late acceleration / transition) | PC1 | **r = +0.50** |
+
+#### Steps 3-8 — All Participants
+![Accel fPCA Steps 3-8 All](outputs/figures/accel_fpca_steps_3-8_all.png)
+
+#### Steps 9-16 — All Participants
+![Accel fPCA Steps 9-16 All](outputs/figures/accel_fpca_steps_9-16_all.png)
+
+Male-only and female-only variants of each step range, plus per-range scree + correlation plots, are saved as:
+- `outputs/figures/accel_fpca_steps_3-8_{M,F,all}.png`
+- `outputs/figures/accel_fpca_steps_9-16_{M,F,all}.png`
+- `outputs/figures/accel_fpca_steps_{3-8,9-16}_scree.png`
+
+*Code: `notebooks/02_Kinematics_PCA.ipynb`, cell "Acceleration fPCA per step range".*
+
+---
+
 ### Model Comparison — LOO-CV R² Across All Algorithms
 ![Model Comparison](outputs/figures/model_comparison.png)
 
