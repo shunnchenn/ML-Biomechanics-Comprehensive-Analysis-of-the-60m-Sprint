@@ -201,12 +201,11 @@ Stars mark peak velocity; shading marks the top-speed maintenance window.
 
 ### Acceleration fPCA by Step Range — Fast / Median / Slow Overlay
 
-Running fPCA **separately for early acceleration (Steps 3-8) and late acceleration / transition (Steps 9-16)** highlights *where* in the acceleration phase the kinematic signal for speed is strongest. Each figure overlays the slowest, median, and fastest sprinter in the cohort at three within-stride phase points (Touchdown / Mid-Stance / Toe-Off) in both sagittal and frontal views.
+Running fPCA **separately for early acceleration (Steps 3-8) and late acceleration / transition (Steps 9-16)** highlights *where* in the acceleration phase the kinematic signal for speed is strongest. To avoid the symmetric-average problem (mixing left- and right-touchdown strides flattens out the support-foot pattern), every per-participant mean stride is built from **right-touchdown strides only**, and the three columns of every overlay figure use **cohort-detected stance phases**:
 
-| Step range | Top velocity-correlated PC | r with peak velocity (n = 30) |
-|------------|----------------------------|------------------------------:|
-| **Steps 3-8** (early acceleration) | PC5 | **r = +0.53** |
-| **Steps 9-16** (late acceleration / transition) | PC1 | **r = +0.50** |
+- **Touchdown** — first frame the foot contacts the ground
+- **Mid-Stance** — temporal midpoint of the detected stance phase (COM passes over the support foot)
+- **Toe-Off** — last frame the support-foot heel is at the floor (within +50 mm)
 
 #### Steps 3-8 — All Participants
 ![Accel fPCA Steps 3-8 All](outputs/figures/accel_fpca_steps_3-8_all.png)
@@ -214,20 +213,32 @@ Running fPCA **separately for early acceleration (Steps 3-8) and late accelerati
 #### Steps 9-16 — All Participants
 ![Accel fPCA Steps 9-16 All](outputs/figures/accel_fpca_steps_9-16_all.png)
 
-#### PC1 Overlay — Always Shown
+#### Per-PC Visualisation — Overlay + Shape Mode (PC1–PC3)
 
-PC1 captures the dominant variance in each step range — **94.0%** for Steps 3-8 and **97.7%** for Steps 9-16. To show what PC1 means kinematically, participants are ranked by their PC1 score (the sign of the PC1–velocity correlation determines which end is "faster"), and the three representative skeletons — low / median / high PC1 score — are overlaid at Touchdown, Mid-Stance, and Toe-Off using the same red / grey / blue convention as the velocity-ranked figures above.
+For each of the top three principal components in each step range we render **two complementary figures**:
 
-##### Steps 3-8 — PC1 Overlay (94.0% var, r = +0.41 with peak velocity)
-![Accel fPCA Steps 3-8 PC1](outputs/figures/accel_fpca_steps_3-8_PC1.png)
+- **Overlay** — same 2×3 grid as the cohort figures, but participants are ranked by their **PC score** instead of peak velocity; red = lower PC (slower side), grey = median, blue = higher PC (faster side).  Sign of the PC–velocity correlation determines which end of the score axis is "faster".
+- **Shape mode** — the ±2 SD reconstruction of PC*k* drawn as a 101-frame motion envelope in both sagittal and frontal views, with the mid-stance frame highlighted.  Red = −2 SD side, blue = +2 SD side (faster sprinter side shown in blue when r > 0, red when r < 0).
 
-##### Steps 9-16 — PC1 Overlay (97.7% var, r = +0.50 with peak velocity)
-![Accel fPCA Steps 9-16 PC1](outputs/figures/accel_fpca_steps_9-16_PC1.png)
+##### Steps 3-8 — PC1 (94.0% var)
+| Overlay | Shape mode |
+|---|---|
+| ![PC1 overlay](outputs/figures/accel_fpca_steps_3-8_PC1.png) | ![PC1 shape](outputs/figures/accel_fpca_steps_3-8_PC1_shape.png) |
 
-Male-only and female-only variants of each step range, plus per-range scree + correlation plots, are saved as:
-- `outputs/figures/accel_fpca_steps_3-8_{M,F,all}.png`
-- `outputs/figures/accel_fpca_steps_9-16_{M,F,all}.png`
-- `outputs/figures/accel_fpca_steps_{3-8,9-16}_scree.png`
+##### Steps 9-16 — PC1 (97.7% var)
+| Overlay | Shape mode |
+|---|---|
+| ![PC1 overlay](outputs/figures/accel_fpca_steps_9-16_PC1.png) | ![PC1 shape](outputs/figures/accel_fpca_steps_9-16_PC1_shape.png) |
+
+Equivalent **PC2** and **PC3** figures (`accel_fpca_steps_{3-8,9-16}_PC{2,3}{,_shape}.png`) capture the next two largest sources of inter-athlete variation in each range.
+
+#### Full Output Inventory
+
+- `outputs/figures/accel_fpca_steps_{3-8,9-16}_{M,F,all}.png` — cohort overlays
+- `outputs/figures/accel_fpca_steps_{3-8,9-16}_PC{1,2,3}.png` — per-PC overlays
+- `outputs/figures/accel_fpca_steps_{3-8,9-16}_PC{1,2,3}_shape.png` — per-PC shape modes
+- `outputs/figures/accel_fpca_steps_{3-8,9-16}_scree.png` — scree + correlation plots
+- `outputs/data/accel_fpca_steps_{3-8,9-16}_scores.csv` — per-participant PC scores
 
 *Code: `notebooks/02_Kinematics_PCA.ipynb`, cell "Acceleration fPCA per step range".*
 
