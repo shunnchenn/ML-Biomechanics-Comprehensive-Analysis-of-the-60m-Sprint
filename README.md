@@ -214,6 +214,16 @@ Running fPCA **separately for early acceleration (Steps 3-8) and late accelerati
 #### Steps 9-16 — All Participants
 ![Accel fPCA Steps 9-16 All](outputs/figures/accel_fpca_steps_9-16_all.png)
 
+#### PC1 Shape Mode — Always Shown
+
+PC1 captures the dominant variance in each step range — **94.0%** for Steps 3-8 and **97.7%** for Steps 9-16. Even where PC1 is not the *strongest* velocity-correlated component (see Steps 3-8 above), it is the largest source of inter-athlete kinematic variation and worth visualising directly. The ±2 SD reconstructions below show the full 101-frame stride as a motion envelope, with the bold skeleton at mid-stance for reference.
+
+##### Steps 3-8 — PC1 (94.0% var, r = +0.41 with peak velocity)
+![Accel fPCA Steps 3-8 PC1](outputs/figures/accel_fpca_steps_3-8_PC1.png)
+
+##### Steps 9-16 — PC1 (97.7% var, r = +0.50 with peak velocity)
+![Accel fPCA Steps 9-16 PC1](outputs/figures/accel_fpca_steps_9-16_PC1.png)
+
 Male-only and female-only variants of each step range, plus per-range scree + correlation plots, are saved as:
 - `outputs/figures/accel_fpca_steps_3-8_{M,F,all}.png`
 - `outputs/figures/accel_fpca_steps_9-16_{M,F,all}.png`
