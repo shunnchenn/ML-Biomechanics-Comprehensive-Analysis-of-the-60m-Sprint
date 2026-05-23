@@ -146,6 +146,30 @@ The only kinematic metric that significantly separates the two groups is **how l
 
 ---
 
+## Block Start Kinematics — Ralph Mann Angle Targets
+
+Ralph Mann's published sprint mechanics provide concrete joint-angle targets for the block-clearance and first two steps. The kinograms below overlay the slowest, median, and fastest sprinter in each sex at five canonical events, with the Mann target annotated beneath each panel:
+
+| Event | Target | Direction |
+|-------|--------|-----------|
+| Rear Foot Clearance | Rear lower-leg ≈ **145°** | Less extension is better (foot still cocked) |
+| Rear Ankle Cross | Rear lower-leg ≈ **87°** | More extension is better (drive completed) |
+| Front Foot Clearance | Front lower-leg ≈ **169°**, trunk ≈ **30°** | Stay low — complete extension, minimal trunk lift |
+| Step 1 TD | CoG behind front foot at contact | Back straight for effective push-off |
+| Step 2 TD | Increased hip height vs Step 1 | Complete knee extension at push-off |
+
+Faster sprinters consistently sit closer to the Mann targets at each frame (e.g. more complete rear-leg drive at Ankle Cross, lower trunk at Front Foot Clearance).
+
+### Males — Block Clearance + First 2 Steps
+![Block SCR Males](outputs/figures/kinogram_block_scr_M.png)
+
+### Females — Block Clearance + First 2 Steps
+![Block SCR Females](outputs/figures/kinogram_block_scr_F.png)
+
+*Code: `notebooks/02_Kinematics_PCA.ipynb`, cells 15–17 (Block Clearance SCR + First 2 Steps).*
+
+---
+
 ## Figures
 
 ### Velocity–Distance Profiles, All 30 Participants
