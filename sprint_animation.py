@@ -58,50 +58,11 @@ THORAX_MKS_64 = [10, 11, 12, 13, 14, 20, 21]   # T12,T8,Neck,Head,L-shoulder,R-s
 SPRINT_DIST_MM = 62500      # 62.5 m crop
 FS_DEFAULT     = 60          # Hz
 
-# Bone polylines (verbatim from MATLAB `xsens_scr_video.m`; 1-based)
-AXIAL_POLYS = [
-    [2,3,5,4,2,6,7,3,7,8,6,8,9,10,11,14,16,21,12,15,11,15,21,15,22,15,12,22,16],
-    [22, 11],
-    [21, 11],
-    [17,18,19,17,20,18,20,19,20,16],
-]
-RIGHT_POLYS = [
-    [21,23,24,29,24,21],
-    [21,29,27,29,28,27],
-    [24,27,24,28,27],
-    [23,27,23,28,27],
-    [27,33,28,33,34,33,35,33,34,27],
-    [39,40,39,41,39,42,41,40,42,47,40,47,41,47],
-    [47,48,47,49],
-    [40,48,40,49],
-    [41,48,41,49],
-    [48,49,53,48,53,54,53,55,53,56,57,56,58,53],
-]
-LEFT_POLYS = [
-    [22,25,26,25,32,22],
-    [22,26],
-    [30,31,25,30,25,31,25,26,30,26,31,26],
-    [32,30,31,30,32,31,32],
-    [30,36,30,37,30,38,36,37,31,36,31,37,31,38,31],
-    [43,44,43,45,43,46,45,44,46],
-    [50,46,50,45,50,44,50],
-    [50,51,50,52,50],
-    [44,51,44,52,44],
-    [45,51,45,52,45],
-    [51,52,51,59,52,59,60,59,60,59,62,59,61,62,63,62,64],
-]
+# Bone polylines and colours live in sprint/skeleton.py — single copy, shared
+# with the figure pipeline.
+from sprint.skeleton import AXIAL_IDX, RIGHT_IDX, LEFT_IDX, COL_AXIAL, COL_RIGHT, COL_LEFT
 
-# Convert all to 0-based, once
-def _z(polys): return [[i - 1 for i in poly] for poly in polys]
-AXIAL_IDX = _z(AXIAL_POLYS)
-RIGHT_IDX = _z(RIGHT_POLYS)
-LEFT_IDX  = _z(LEFT_POLYS)
-
-# Colours (matching MATLAB)
-COL_AXIAL = "k"
-COL_RIGHT = "#d62728"      # red
-COL_LEFT  = "#2ca02c"      # green
-COL_DOT   = "k"
+COL_DOT = "k"
 
 
 # ────────────────────────────────────────────────────────────────────────────

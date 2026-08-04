@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sprint"
+version = "1.0.0"
+description = "Phase-normalised sprint kinematics: alignment, gait events, interpretable models"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy", "pandas", "scipy", "scikit-learn", "matplotlib", "shap", "ezc3d",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+sprint = "sprint.cli:main"
+
+[tool.setuptools]
+packages = ["sprint"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::UserWarning", "ignore::FutureWarning"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4", "RUF"]
+# C408: dict(...) reads better than {...} for the wide keyword-style records built
+#   in events/cli. RUF059: unused unpacked values are intentional in tests.
+ignore = ["C408", "RUF059", "E402"]
+
+[tool.ruff.lint.per-file-ignores]
+# The build loop must survive one bad trial and record it in the QA report.
+"sprint/cli.py" = ["BLE001"]

@@ -57,4 +57,8 @@ Chris V. Files/
 MatLab/
 
 # ── Temp / scratch scripts ───────────────────────────────────────────────────
-_*.py
+# Was `_*.py`, which also matched __init__.py / __main__.py and silently kept the
+# package out of the repo. The scratch scripts it targeted are gone.
+/_*.py
+!__init__.py
+!__main__.py

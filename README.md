@@ -1,337 +1,235 @@
-# ML in Sprinting: Predicting Sprint Speed from Whole-Body Kinematics
+# ML in Sprinting: What Faster Actually Looks Like
 
 > *Widely regarded as the most desired physical quality in ball-sports, speed is the trait that separates elite performers from good ones — that creates plays others cannot make.*
 
----
-
-## Overview
-
-This project applies **functional Principal Component Analysis (fPCA)** and a full suite of machine learning models to whole-body kinematic data from 30 competitive sprinters, separately analysing the **acceleration** (0–20 m) and **top-speed** (≥ 25 m) phases of the 60 m sprint.
-
-**Two headline findings:**
-
-1. **The race is decided in the first 20 metres.** Split times across 0–10 m and 10–20 m predict overall 60 m time better than any kinematic feature in the body (R² up to 0.93–0.99 for early-split → cumulative time vs. R² ≈ 0.46 for the best kinematic model).
-2. **Sex differences are about maintenance, not mechanics.** Males and females share the same kinematic template at top speed; the only statistically significant biomechanical difference between sexes is *how long* they sustain peak velocity — females hold top speed ~5 m longer than males on average.
+Whole-body kinematics from 30 competitive sprinters over 60 m, analysed on a
+**phase-normalised** basis — 0–100% of ground contact, then 0–100% of flight —
+so athletes with different contact and flight times are compared at the same
+point of the same phase rather than at the same fraction of a stride.
 
 ---
 
-## The Problem
+## Study design
 
-Contemporary player-tracking systems reduce speed to single-value summaries — peak velocity, average acceleration — collapsing the temporal structure of movement into a number. This obscures a more fundamental question: **what actually constitutes speed in competitive settings?**
-
-Shohei Ohtani's base-stealing illustrates this precisely. In 2025, his Statcast sprint speed ranked ~72nd percentile in MLB (~28.0 ft/sec), yet his stolen base efficiency exceeded 93% in 2024. His advantage lies not in raw speed, but in **how rapidly and consistently he expresses usable speed within constrained windows of time**.
-
-Existing research examines acceleration or maximum velocity in isolation using linear models to relate discrete joint kinematics to speed. This treats sprint phases as independent phenomena rather than continuous transitions, and assumes linear relationships — even though stride frequency exhibits a logarithmic correlation by the third step (Weyand et al., 2000, 2010). No prior study has modeled sprint velocity continuously across all phases while testing for nonlinear kinematic interactions.
-
----
-
-## Study Design
-
-**30 OUA / USports-level sprinters** (15M / 15F) completed maximal-effort 60-metre sprints from blocks, instrumented with a **64-marker inertial measurement system** capturing whole-body three-dimensional kinematics at 60 Hz.
+**30 OUA / USports sprinters** (15 M / 15 F) ran maximal 60 m from blocks in a
+64-marker inertial suit capturing whole-body 3-D kinematics at 60 Hz.
 
 | Dimension | Detail |
 |-----------|--------|
-| Participants | 30 (15 Male, 15 Female) |
+| Participants | 30 (15 M, 15 F) |
 | Competition level | OUA / USports |
-| Sprint distance | 60 metres (block start) |
+| Sprint distance | 60 m, block start |
 | Capture rate | 60 Hz |
 | Markers | 64 anatomical landmarks |
-| Raw feature space | 19,392 per participant (64 markers × 3 axes × 101 frames) |
-| Peak velocity range | 7.00 → 10.02 m/s (Males: 9.25 ± 0.41; Females: 8.01 ± 0.43) |
+| Peak velocity range | 7.00 → 10.02 m/s |
 
 ---
 
-## Pipeline — Three Notebooks
+## How the pipeline works
 
-The analysis is split into three reproducible notebooks in `notebooks/`:
+### Everyone on the same axes
 
-| # | Notebook | Purpose |
-|---|----------|---------|
-| **1** | [`01_Sprint_Ensemble_Viz.ipynb`](notebooks/01_Sprint_Ensemble_Viz.ipynb) | **Skeleton viewer + QA.** Loads every `.c3d` file, GCS-aligns each trial, renders SCR (single-frame) and MCR (multi-frame envelope) views for visual quality control of all 30 participants. |
-| **2** | [`02_Kinematics_PCA.ipynb`](notebooks/02_Kinematics_PCA.ipynb) | **C3D processing → stride vectors → fPCA.** Detects sprint start, identifies five strides around peak velocity, time-normalises each stride to 101 frames, height-normalises across participants, builds a 30 × 19,392 matrix, runs PCA. |
-| **3** | [`03_Sprint_ML_Analysis.ipynb`](notebooks/03_Sprint_ML_Analysis.ipynb) | **Modelling + interpretation.** Loads pre-processed stride vectors, runs functional PCA, biomechanical feature engineering, 26-model comparison with LOO-CV, feature importance (Ridge / SHAP / permutation), split-time prediction, sex analysis, and PC shape-mode figures. |
+Three things fix the frame, in `sprint/frame.py`:
 
-A standalone Python utility, [`sprint_animation.py`](sprint_animation.py), renders 4-panel MP4 visualisations (thoracic velocity curve + sagittal skeleton + top-down track view) for any participant. Examples are in `outputs/animations/`.
+- **Vertical is the raw Xsens Z axis.** The suit measures gravity directly, so
+  vertical is *observed*, not inferred from variance — it cannot rotate into the
+  horizontal plane when an athlete's lateral spread exceeds their height.
+- **Heading is estimated locally**, from pelvis displacement across the window
+  being analysed, not from one axis fitted to the whole 60 m. A global axis is
+  tilted by lane drift and by the curved path out of the blocks; a per-step
+  heading is immune to both and is sign-unambiguous, because the pelvis always
+  advances within a step.
+- **Translation and scale are removed** — origin at the support foot at
+  touchdown, scale by stature. What is left is a yaw-only Procrustes alignment:
+  the only free rotation is the one gravity leaves open.
 
----
+Steps 1–4 are the exception: heading genuinely rotates during block clearance,
+so one heading is fixed across those four steps rather than re-estimated per
+step, which would erase that rotation as signal.
 
-## Sprint Animations
+### Contact and flight, measured rather than assumed
 
-Three representative trials are bundled with the repository (full set of 31 is local-only; see `sprint_animation.py` to regenerate):
+Touchdown and toe-off use the coordinate rule of Zeni et al. (2008) — touchdown
+where the heel is furthest ahead of the pelvis, toe-off where the toe is
+furthest behind it — each snapped to the ground-contact run in the foot's own
+vertical trace. That snap matters: the coordinate rule places toe-off several
+frames late, because a foot that has just left the ground is near-stationary and
+keeps falling behind the pelvis after it is airborne.
 
-| Trial | Sex | Peak velocity | File |
-|-------|-----|---------------|------|
-| 🏆 **Fastest** | M | **10.02 m/s** | [`outputs/animations/SB101_fastest_M_10.02ms.mp4`](outputs/animations/SB101_fastest_M_10.02ms.mp4) |
-| 📊 **Average** | F | **8.62 m/s** | [`outputs/animations/SB16_average_F_8.62ms.mp4`](outputs/animations/SB16_average_F_8.62ms.mp4) |
-| 🐢 **Slowest** | F | **7.00 m/s** | [`outputs/animations/SB202_slowest_F_7.00ms.mp4`](outputs/animations/SB202_slowest_F_7.00ms.mp4) |
+Every step is then resampled to **20 points of contact + 20 points of flight**.
+Twenty and not 101, deliberately: at 60 Hz a top-speed contact is only about 6–7
+raw frames, so a denser grid would manufacture resolution the capture rate does
+not hold. A phase with fewer than 3 raw frames is emitted as NaN rather than
+interpolated — early-acceleration flight can be that short.
 
-Each clip starts automatically at the moment the sprinter clears the blocks (idle frames trimmed via thoracic-velocity threshold) and ends at the 62.5 m finish line. Rendered at 20 fps, H.264.
+Contact and flight **durations are kept as explicit features**. Normalising each
+phase is what makes shapes comparable, but timing is a determinant of sprint
+speed, not a nuisance to divide out.
 
----
+### A QA gate on every build
 
-## Key Takeaways
+`sprint/events.qa()` checks contact time against [0.07, 0.30] s, duty factor
+against [0.15, 0.55], and whether `v ≈ step length × step frequency` closes to
+within 10%. Failures are printed per athlete, not buried.
 
-### ① Acceleration Phase (0–20 m)
+### Three interpretable readouts
 
-**Modelling.** Kinematic models for acceleration plateaued at a modest ceiling — best LOO-CV R² = **0.186** (LASSO on accelerometer fPC scores, 0–10 m). Ridge, Random Forest, kNN, SVR, and XGBoost all returned near-zero or negative LOO-CV R² for predicting split-time from kinematics alone.
+At n ≈ 30 the useful output is an effect per feature, not a ranking of
+algorithms. `sprint/model.py` fits:
 
-**What the data says faster acceleration *looks like*:**
-- **Greater maintanenace of forward trunk lean from Blocks to Step 8 while maintaining forward knee drive** 
-- **Greater arm swing ROM**
+1. **Elastic Net** — LOO-CV R², coefficients on standardised features, so each
+   reads as "per +1 SD of this feature, that much change in speed". Percentile
+   bootstrap CIs, plus `selected_pct`: how often a feature survived the penalty
+   across resamples, which is the honest stability measure at this sample size.
+2. **Penalised logistic** — fast vs slow outer tertiles, log-odds per SD.
+3. **SHAP** — on the linear model, where it is exact (`β·(x − x̄)`). Tree SHAP at
+   this sample size would be noise dressed up as attribution.
 
-**Phase descriptives:**
-- Distance to reach 95 % of peak velocity: **21.96 ± 5.58 m** (range 14.89 → 42.79)
-- Strides to peak velocity: **12.6 ± 4.5** (range 8 → 25)
-- **Stride efficiency** (distance ÷ ground-contact time) **roughly doubles between strides 1 and 2** — most of the mechanical optimisation happens in the first 10 m.
-
-**Practical insight.** Acceleration kinematics do **not** generalise tightly across athletes; multiple individual strategies can produce fast acceleration. The signal in the *outcome* (split time) is strong, but the path through the body is heterogeneous.
-
----
-
-### ② Top-Speed Phase (≥ 25 m)
-
-**Modelling.** Top-speed kinematics are substantially more predictable than acceleration kinematics.
-
-| Rank | Model | Features | LOO-CV R² | RMSE (m/s) | Overfit gap |
-|------|-------|----------|-----------|------------|-------------|
-| 1 | **SVR (C = 10)** | **9 Bio features** | **0.465** | **0.540** | 0.518 |
-| 2 | PLS (n = 6) | Raw 19,392 | 0.421 | 0.562 | 0.427 |
-| 3 | PCR (n = 12) | Raw 19,392 | 0.390 | 0.577 | 0.386 |
-| 4 | **Stepwise OLS** | **3 PCs (A\*)** | **0.386** | **0.579** | **0.138** ⭐ most generalisable |
-| 5 | XGBoost | 9 Bio features | 0.294 | 0.620 | 0.621 |
-
-**Top predictors (convergent across Ridge, RF permutation, SHAP):**
-1. **Top-speed maintenance distance** — *longer* = faster
-2. **Stride length at top speed** — *longer* = faster
-3. **Stride frequency at top speed** — opposing direction (the classic length-vs-frequency trade-off)
-
-**What the data says faster top-end *looks like*:**
-- **More upright trunk**
-- **Forward foot-strike** 
-- **Lower CoM at full support** 
-- **Greater hip extension and plantarflexion at toe-off** (ankle-dominant propulsion)
-- **Higher / more forward knee** at max vertical projection
-- **Compact, near-vertical shank at touchdown** (minimises horizontal braking)
+Curves are compared with **cluster-based permutation testing**, which marks
+*where in the phase* fast and slow athletes differ without testing every phase
+point independently.
 
 ---
 
-### ③ The "30-Metre Barrier"
+## Running it
 
-The strongest predictive signal in the entire dataset is **not** kinematic — it is **early split-time itself**.
+```bash
+pip install numpy pandas scikit-learn scipy matplotlib statsmodels shap ezc3d pytest
+
+export SPRINT_C3D_DIR="/path/to/trials"     # raw .c3d, not in this repo
+python -m sprint build                       # c3d -> phase-normalised dataset + QA report
+python -m sprint analyse                     # models + figures
+pytest                                       # 34 tests, no participant data needed
+```
+
+Or run the notebooks, which are thin drivers over the same package:
+
+| Notebook | Purpose |
+|---|---|
+| [`01_Alignment_and_Event_QA`](notebooks/01_Alignment_and_Event_QA.ipynb) | Frame check, per-trial QA table, skeleton grid |
+| [`02_Build_Phase_Dataset`](notebooks/02_Build_Phase_Dataset.ipynb) | C3D → phase-normalised curves and per-step scalars |
+| [`03_What_Faster_Looks_Like`](notebooks/03_What_Faster_Looks_Like.ipynb) | Elastic Net / logistic / SHAP + figures |
+
+`sprint_animation.py` still renders the 4-panel MP4s; three examples are in
+`outputs/animations/`.
+
+### Outputs
+
+| File | Contents |
+|---|---|
+| `optimal_kinematics_{accel,topspeed}.png` | Fast vs slow mean ±95% CI per joint over contact\|flight, significant clusters shaded |
+| `kinogram_{accel,topspeed}.png` | Mean fast and slow pose at fixed points of contact and flight |
+| `coefficients_{accel,topspeed}.png` | Elastic Net β with bootstrap CIs, beside fast-vs-slow log-odds |
+| `interpretation_{accel,topspeed}.csv` | β, CI, selection %, log-odds and mean \|SHAP\| per feature |
+| `qa_report.csv` | Per-trial contact/duty/velocity checks |
+
+Targets: peak velocity for top speed; the 0–10 m split for acceleration, sign-flipped
+so a positive coefficient means *faster* in both phases.
+
+---
+
+## Findings
+
+### The 30-metre barrier — unaffected, and still the strongest signal
+
+The strongest predictive signal in the dataset is not kinematic. It is early
+split time itself, measured by radar and entirely independent of the marker
+pipeline, so it is untouched by the reprocessing below.
 
 | Predictor | → Target | R² (LOO-CV) |
 |-----------|----------|------------|
-| 0–10 m split | 30 m time | **0.97** |
-| 0–10 m split | 60 m time | **0.88** |
-| 10–20 m split | 30 m time | **0.99** |
-| 10–20 m split | 60 m time | **0.93** |
-| Top-speed bio features | 30 m time | ~0.51 |
-| Top-speed bio features | 60 m time | ~0.48 |
+| 0–10 m split | 30 m time | 0.97 |
+| 0–10 m split | 60 m time | 0.88 |
+| 10–20 m split | 30 m time | 0.99 |
+| 10–20 m split | 60 m time | 0.93 |
 
-> **Implication.** The competitive outcome of the 60 m is largely decided within the first 10–20 metres. For coaches working with team-sport athletes (baseball baserunning, soccer breakaway runs, basketball transition), this means **start-acceleration training will return more on the dollar than top-speed work** for distances under ~30 m.
+> The competitive outcome of a 60 m is largely decided in the first 10–20 m. For
+> team-sport athletes covering under ~30 m, start-acceleration work returns more
+> than top-speed work.
 
----
+### Kinematic findings — being regenerated
 
-### ④ Sex Differences — Maintenance, Not Mechanics
+The kinematic results previously published here were built on a ground-contact
+detector that did not work, so they are not reproduced. The defect, visible in
+files committed to this repository:
 
-| Metric | Males (mean ± SD) | Females (mean ± SD) | p | Significant |
-|--------|-------------------|---------------------|---|-------------|
-| **Top-speed maintenance distance** | **32.21 ± 5.90 m** | **37.51 ± 4.62 m** | **0.010** | ✅ **Yes** |
-| Stride length at top speed | 3.73 ± 0.69 m | 3.73 ± 0.32 m | 0.41 | No |
-| Stride frequency at top speed | 1.82 ± 0.23 Hz | 1.74 ± 0.21 Hz | 0.24 | No |
-| Vertical oscillation at top speed | 0.060 ± 0.016 m | 0.056 ± 0.013 m | 0.37 | No |
-| Strides to peak velocity | 10.87 ± 1.54 | 14.33 ± 5.52 | 0.11 | No |
+- `sprint_biomechanics_metrics.csv` reports mean top-speed ground contact of
+  **0.622 s**, longer than the mean stride period it also reports (0.574 s).
+  Contact cannot exceed the whole stride.
+- The detector called `find_peaks(distance=30)` on 60 Hz data, but a top-speed
+  stride at ~2.3 strides/s is only ~26 frames — the minimum peak spacing was
+  wider than the event being detected, so consecutive contacts merged.
+  Consistent with that, `accel_participant_vectors.npy` contains **two
+  left-heel contacts inside 17 of 26 nominally single strides**.
+- `avg_stride_length_top_speed_m × stride_freq_top_speed_hz` = 3.73 × 1.78 =
+  **6.6 m/s** against a reported 8.6 m/s peak. Those columns were computed over
+  every contact in the trial, not the top-speed window, despite their names.
 
-The only kinematic metric that significantly separates the two groups is **how long they sustain peak velocity** — and females, surprisingly, hold top-speed *longer* than males (rank-biserial effect size = 0.556). The mechanical template is shared; the sustaining capacity differs.
+Anything downstream of those events — the stride vectors, the fPCA modes fitted
+to them, the model comparison table, the sex-difference rows for stride length,
+stride frequency and vertical oscillation — inherits the error. Regenerating
+requires the raw `.c3d` files, which are not in this repository.
 
----
+`python -m sprint build` now refuses to report these quantities silently: the QA
+gate flags any trial whose contact time, duty factor, or `v = SL × SF` identity
+falls outside physiological bounds.
 
-## Block Start Kinematics — Ralph Mann Angle Targets
+### Archived outputs
 
-Ralph Mann's published sprint mechanics provide concrete joint-angle targets for the block-clearance and first two steps. The kinograms below overlay the slowest, median, and fastest sprinter in each sex at five canonical events, with the Mann target annotated beneath each panel:
-
-| Event | Target | Direction |
-|-------|--------|-----------|
-| Rear Foot Clearance | Rear lower-leg ≈ **145°** | Less extension is better (foot still cocked) |
-| Rear Ankle Cross | Rear lower-leg ≈ **87°** | More extension is better (drive completed) |
-| Front Foot Clearance | Front lower-leg ≈ **169°**, trunk ≈ **30°** | Stay low — complete extension, minimal trunk lift |
-| Step 1 TD | CoG behind front foot at contact | Back straight for effective push-off |
-| Step 2 TD | Increased hip height vs Step 1 | Complete knee extension at push-off |
-
-Faster sprinters consistently sit closer to the Mann targets at each frame (e.g. more complete rear-leg drive at Ankle Cross, lower trunk at Front Foot Clearance).
-
-### Males — Block Clearance + First 2 Steps
-![Block SCR Males](outputs/figures/kinogram_block_scr_M.png)
-
-### Females — Block Clearance + First 2 Steps
-![Block SCR Females](outputs/figures/kinogram_block_scr_F.png)
-
-*Code: `notebooks/02_Kinematics_PCA.ipynb`, cells 15–17 (Block Clearance SCR + First 2 Steps).*
+Everything under `outputs/figures/` and most of `outputs/data/` was produced by
+the superseded pipeline. The files are retained for reference and will be
+replaced on the next build. `split_times.csv` is radar-measured and remains
+valid.
 
 ---
 
-## Figures
-
-### Velocity–Distance Profiles, All 30 Participants
-Stars mark peak velocity; shading marks the top-speed maintenance window.
-
-![Velocity Curves](outputs/figures/velocity_curves.png)
-
----
-
-### Velocity Curves by Sex
-![Velocity Curves by Sex](outputs/figures/velocity_curves_by_sex.png)
-
----
-
-### Scree Plot — Variance Explained by PC
-![Scree Plot](outputs/figures/scree_plot.png)
-
----
-
-### Top-Speed Phase — Strongest PC (PC2, r = +0.483 with peak velocity)
-![Top-Speed PC2](outputs/figures/top-speed_fpca_PC_2.png)
-
----
-
-### Acceleration Phase — Strongest PC (PC5, r = −0.486 with peak velocity)
-![Accel PC5](outputs/figures/accel_fpca_PC_5.png)
-
----
-
-### Acceleration fPCA by Step Range — Fast / Median / Slow Overlay
-
-Running fPCA **separately for early acceleration (Steps 3-8) and late acceleration / transition (Steps 9-16)** highlights *where* in the acceleration phase the kinematic signal for speed is strongest. To avoid the symmetric-average problem (mixing left- and right-touchdown strides flattens out the support-foot pattern), every per-participant mean stride is built from **right-touchdown strides only**, and the three columns of every overlay figure use **cohort-detected stance phases**:
-
-- **Touchdown** — first frame the foot contacts the ground
-- **Mid-Stance** — temporal midpoint of the detected stance phase (COM passes over the support foot)
-- **Toe-Off** — last frame the support-foot heel is at the floor (within +50 mm)
-
-#### Steps 3-8 — All Participants
-![Accel fPCA Steps 3-8 All](outputs/figures/accel_fpca_steps_3-8_all.png)
-
-#### Steps 9-16 — All Participants
-![Accel fPCA Steps 9-16 All](outputs/figures/accel_fpca_steps_9-16_all.png)
-
-#### Per-PC Visualisation — Overlay + Shape Mode (PC1–PC3)
-
-For each of the top three principal components in each step range we render **two complementary figures**:
-
-- **Overlay** — same 2×3 grid as the cohort figures, but participants are ranked by their **PC score** instead of peak velocity; red = lower PC (slower side), grey = median, blue = higher PC (faster side).  Sign of the PC–velocity correlation determines which end of the score axis is "faster".
-- **Shape mode** — the ±2 SD reconstruction of PC*k* drawn as a 101-frame motion envelope in both sagittal and frontal views, with the mid-stance frame highlighted.  Red = −2 SD side, blue = +2 SD side (faster sprinter side shown in blue when r > 0, red when r < 0).
-
-##### Steps 3-8 — PC1 (94.0% var)
-| Overlay | Shape mode |
-|---|---|
-| ![PC1 overlay](outputs/figures/accel_fpca_steps_3-8_PC1.png) | ![PC1 shape](outputs/figures/accel_fpca_steps_3-8_PC1_shape.png) |
-
-##### Steps 9-16 — PC1 (97.7% var)
-| Overlay | Shape mode |
-|---|---|
-| ![PC1 overlay](outputs/figures/accel_fpca_steps_9-16_PC1.png) | ![PC1 shape](outputs/figures/accel_fpca_steps_9-16_PC1_shape.png) |
-
-Equivalent **PC2** and **PC3** figures (`accel_fpca_steps_{3-8,9-16}_PC{2,3}{,_shape}.png`) capture the next two largest sources of inter-athlete variation in each range.
-
-#### Full Output Inventory
-
-- `outputs/figures/accel_fpca_steps_{3-8,9-16}_{M,F,all}.png` — cohort overlays
-- `outputs/figures/accel_fpca_steps_{3-8,9-16}_PC{1,2,3}.png` — per-PC overlays
-- `outputs/figures/accel_fpca_steps_{3-8,9-16}_PC{1,2,3}_shape.png` — per-PC shape modes
-- `outputs/figures/accel_fpca_steps_{3-8,9-16}_scree.png` — scree + correlation plots
-- `outputs/data/accel_fpca_steps_{3-8,9-16}_scores.csv` — per-participant PC scores
-
-*Code: `notebooks/02_Kinematics_PCA.ipynb`, cell "Acceleration fPCA per step range".*
-
----
-
-### Model Comparison — LOO-CV R² Across All Algorithms
-![Model Comparison](outputs/figures/model_comparison.png)
-
----
-
-### Overfitting Diagnostic
-Train R² (blue) vs. LOO-CV R² (red) as more PCs are added.
-
-![Overfitting Diagnostics](outputs/figures/overfitting_diagnostics.png)
-
----
-
-### SHAP Feature Importance (XGBoost, Top-Speed Bio Features)
-![SHAP Summary](outputs/figures/shap_summary.png)
-
----
-
-### The "30-m Barrier" — Best-Interval Prediction of Cumulative Time
-![Best Interval Prediction](outputs/figures/best_interval_prediction.png)
-
----
-
-### Cross-Phase R² Comparison
-![Cross-Phase R²](outputs/figures/cross_phase_r2_comparison.png)
-
----
-
-### Sex Boxplots
-![Sex Boxplots](outputs/figures/sex_boxplots.png)
-
----
-
-### Split Times by Sex
-![Split Times by Sex](outputs/figures/split_times_by_sex.png)
-
----
-
-## Repository Structure
+## Repository
 
 ```
-ML-Biomechanics-Comprehensive-Analysis-of-the-60m-Sprint/
-├── README.md                                ← this file
-├── .gitignore
-├── sprint_animation.py                      ← 4-panel MP4 renderer
-├── notebooks/
-│   ├── 01_Sprint_Ensemble_Viz.ipynb         ← skeleton viewer + QA
-│   ├── 02_Kinematics_PCA.ipynb              ← C3D → stride vectors → fPCA
-│   └── 03_Sprint_ML_Analysis.ipynb          ← models + interpretation
-└── outputs/
-    ├── animations/
-    │   ├── SB101_fastest_M_10.02ms.mp4
-    │   ├── SB16_average_F_8.62ms.mp4
-    │   └── SB202_slowest_F_7.00ms.mp4
-    ├── data/
-    │   ├── metadata.csv                      ← participant ID, sex, velocity, height
-    │   ├── sprint_biomechanics_metrics.csv   ← 18 bio metrics × 30 participants
-    │   ├── model_comparison.csv              ← top-speed LOO-CV results
-    │   ├── accel_model_comparison.csv        ← acceleration LOO-CV results
-    │   ├── split_times.csv                   ← radar-measured split times
-    │   ├── sex_differences.csv               ← M / F comparison (Mann-Whitney U)
-    │   ├── cross_phase_comparison.csv        ← acceleration vs top-speed
-    │   └── phase_prediction_heatmap*.csv     ← interval → target time R² grid
-    └── figures/                              ← 30+ publication-ready PNGs
+sprint/                 ← the pipeline (~900 lines)
+  config.py             marker roles, paths, phase-base constants
+  io.py                 c3d loading, marker-role resolution by label
+  frame.py              gravity-Z + local heading, yaw-only Procrustes
+  events.py             Zeni contacts, step table, phase normalisation, QA
+  features.py           sagittal angle curves + per-step scalars
+  model.py              Elastic Net, logistic contrast, linear SHAP, SPM
+  figures.py            ribbon, coefficient plot, kinogram
+  skeleton.py           64-marker bone connectivity (shared with the animator)
+  cli.py                python -m sprint build | analyse
+tests/                  synthetic-gait fixture + 34 tests
+notebooks/              three thin drivers
+sprint_animation.py     4-panel MP4 renderer
+outputs/                data, figures, animations
 ```
+
+Marker indices in `config.py` are confirmed two independent ways against
+`outputs/data/accel_participant_vectors.npy`: lateral-coordinate sign, and
+membership of the left/right bone lists in `skeleton.py`.
+
+Raw `.c3d` and `.xlsx` are excluded for participant privacy. Contact the author
+for data access.
 
 ---
 
-## Reproduction
+## Known limitations
 
-```bash
-# 1 — install dependencies
-pip install numpy pandas scikit-learn scipy matplotlib tqdm \
-            statsmodels xgboost shap ezc3d python-docx
-
-# 2 — place raw .c3d files in:
-#     ../60m Data/All Sprint Trials/   (not included in repo — participant privacy)
-
-# 3 — run notebooks in order
-jupyter notebook notebooks/01_Sprint_Ensemble_Viz.ipynb     # QA / visualisation
-jupyter notebook notebooks/02_Kinematics_PCA.ipynb          # stride vectors → fPCA
-jupyter notebook notebooks/03_Sprint_ML_Analysis.ipynb      # models + interpretation
-
-# 4 — (optional) render animation for a single trial
-python sprint_animation.py SB101              # one trial
-python sprint_animation.py --all --fps 20     # batch all 31
-```
-
-> Raw `.c3d` and `.xlsx` files are not included for participant-privacy reasons. Contact the author for data access.
+- **Event timing resolution.** Without force plates, touchdown and toe-off are
+  estimates. At 60 Hz one frame is 17 ms against a top-speed contact of roughly
+  100 ms, so per-step contact time carries about 17% resolution error.
+  Averaging over steps reduces it; it does not remove it. Duty-factor results
+  should be read with that in mind.
+- **Sample size.** n ≈ 30 with more candidate features than athletes. The
+  Elastic Net is regularised and cross-validated, and `selected_pct` reports
+  stability, but no result here should be treated as a fitted constant.
+- **Bootstrap intervals are widths, not exact coverage.** An L1-penalised
+  coefficient has a point mass at exactly zero, so its bootstrap distribution is
+  not centred on the full-data estimate. The penalty is held fixed at the
+  full-data value during resampling (re-tuning it per resample shrinks every
+  coefficient and pushes the interval off the estimate entirely), which gives
+  full coverage on this dataset — but `selected_pct` remains the more
+  trustworthy stability measure.
+- **The logistic contrast drops the middle tertile**, so its AUC is not
+  comparable to the regression R² — it is an easier problem by construction.
 
 ---
 
@@ -381,6 +279,8 @@ Weyand, P. G., Sandell, R. F., Prime, D. N. L., & Bundle, M. W. (2010). The biol
 
 Yada, K., Ae, M., Tanigawa, S., Ito, A., Fukuda, K., & Kijima, K. (2011). Standard motion of sprint running for male elite and student sprinters. *ISBS — Conference Proceedings Archive*.
 
+Zeni, J. A., Richards, J. G., & Higginson, J. S. (2008). Two simple methods for determining gait events during treadmill and overground walking using kinematic data. *Gait & Posture*, 27(4), 710–714. https://doi.org/10.1016/j.gaitpost.2007.07.007
+
 ---
 
-*Analysis pipeline: Python 3.13 · scikit-learn 1.6 · XGBoost 3.0 · SHAP 0.50 · ezc3d · matplotlib · ffmpeg*
+*Python 3.11 · scikit-learn 1.9 · SHAP 0.51 · ezc3d 1.7 · matplotlib · ffmpeg*
