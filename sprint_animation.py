@@ -31,6 +31,7 @@ Usage:
 """
 
 from __future__ import annotations
+
 import argparse
 import os
 import subprocess
@@ -43,11 +44,15 @@ import numpy as np
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 — registers 3D projection
 
+from sprint import config as sprint_config
+
 # ────────────────────────────────────────────────────────────────────────────
 # Constants
 # ────────────────────────────────────────────────────────────────────────────
-C3D_DIR = "/Users/shunchen/Desktop/60m Project Folder/31 Trials Data Folder/C3D, XLSX/Sprint Trials in c3d"
-OUT_DIR = "/Users/shunchen/Desktop/60m Project Folder/Shun's Sprints Code/Outputs/Animations"
+# Trials come from the same place the rest of the pipeline reads them: data/c3d/
+# by default, overridable with SPRINT_C3D_DIR. Output defaults into the repo.
+C3D_DIR = str(sprint_config.C3D_DIR)
+OUT_DIR = os.environ.get("SPRINT_ANIM_DIR", str(sprint_config.ROOT / "outputs" / "animations"))
 
 # Xsens 64-marker indices (Python 0-based; MATLAB 1-based - 1)
 MK_T12        = 10
@@ -60,7 +65,7 @@ FS_DEFAULT     = 60          # Hz
 
 # Bone polylines and colours live in sprint/skeleton.py — single copy, shared
 # with the figure pipeline.
-from sprint.skeleton import AXIAL_IDX, RIGHT_IDX, LEFT_IDX, COL_AXIAL, COL_RIGHT, COL_LEFT
+from sprint.skeleton import AXIAL_IDX, COL_AXIAL, COL_LEFT, COL_RIGHT, LEFT_IDX, RIGHT_IDX
 
 COL_DOT = "k"
 

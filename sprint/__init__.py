@@ -1,4 +1,4 @@
 """Phase-normalised sprint kinematics: alignment, events, features, models, figures."""
-from . import config, events, frame, io  # noqa: F401
+from . import config, events, frame, io
 
-__all__ = ["config", "events", "frame", "io", "features", "model", "figures"]
+__all__ = ["config", "events", "features", "figures", "frame", "io", "model"]

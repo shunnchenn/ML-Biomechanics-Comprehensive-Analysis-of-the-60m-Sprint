@@ -94,13 +94,17 @@ point independently.
 ## Running it
 
 ```bash
-pip install numpy pandas scikit-learn scipy matplotlib statsmodels shap ezc3d pytest
+pip install -e ".[dev]"
 
-export SPRINT_C3D_DIR="/path/to/trials"     # raw .c3d, not in this repo
+export SPRINT_C3D_DIR="/path/to/trials"     # only if trials are outside data/c3d/
 python -m sprint build                       # c3d -> phase-normalised dataset + QA report
 python -m sprint analyse                     # models + figures
 pytest                                       # 34 tests, no participant data needed
 ```
+
+`build` looks in `data/c3d/` by default. Read its QA output before anything else:
+it reports contact time, duty factor and whether `v = SL × SF` closes, per
+athlete. A trial that fails is a detection problem on that trial, not a finding.
 
 Or run the notebooks, which are thin drivers over the same package:
 
@@ -198,16 +202,37 @@ sprint/                 ← the pipeline (~900 lines)
   cli.py                python -m sprint build | analyse
 tests/                  synthetic-gait fixture + 34 tests
 notebooks/              three thin drivers
+data/c3d/               raw trials (populated only in the private repo)
 sprint_animation.py     4-panel MP4 renderer
 outputs/                data, figures, animations
+RUNBOOK.md              private-repo + first-real-run checklist
 ```
 
 Marker indices in `config.py` are confirmed two independent ways against
 `outputs/data/accel_participant_vectors.npy`: lateral-coordinate sign, and
 membership of the left/right bone lists in `skeleton.py`.
 
-Raw `.c3d` and `.xlsx` are excluded for participant privacy. Contact the author
-for data access.
+### Data availability
+
+Raw trials are whole-body marker trajectories from 30 identifiable human research
+participants. Gait kinematics is a biometric, and in a cohort this small —
+30 OUA/USports sprinters, with sex and stature also published — re-identification
+is plausible. Two supported configurations:
+
+| Repository | `data/c3d/` | Finding the trials |
+|---|---|---|
+| **Public** | empty | `export SPRINT_C3D_DIR=/path/to/trials`; data never enters git |
+| **Private** | populated | default path, no env var |
+
+Committing trials to a *public* repository cannot be undone — git history, any
+existing fork, and GitHub's retention of unreachable commits all outlive a
+deletion. `RUNBOOK.md` gives the order of operations that makes the private
+configuration safe; `data/README.md` documents the expected layout.
+
+Everything in `outputs/data/` is derived and aggregate — scalars, phase curves,
+split times, coefficients — and carries no marker trajectories.
+
+For access to the raw trials, contact the author.
 
 ---
 
