@@ -1,0 +1,29 @@
+---
+description: Project conventions for the 60m sprint fPCA/ML pipeline
+alwaysApply: true
+---
+
+# Hard constraints
+
+- Do not edit `sprint_helpers.py`. If a change seems needed there, say so and stop.
+- `sprint_pipeline.py` is a library: it defines functions only. It must stay importable with no side effects at import time.
+- Do not add dependencies. The environment is `/opt/anaconda3/bin/python`.
+- Prefer the smallest change that solves the problem. No abstraction for fewer than 3 real use cases.
+
+# Domain conventions
+
+- Colour semantics: **blue = faster**. Keep this consistent across every figure; never flip it for convenience.
+- Knee angle follows the **ISB sign convention**. Do not silently change signs to make a plot look right — if a sign looks wrong, flag it.
+- Units: SI throughout (m, m/s; radians unless a plot is explicitly in degrees — label it).
+
+# Numerical rigour
+
+- Every number in text, a figure, or the audit document must be recomputed from the data, never copied from a previous run.
+- `04_Audit_Provenance.ipynb` is the source of truth for reported numbers. If you change anything upstream, say which audit numbers are invalidated.
+- Reference sanity check: the cohort run is 531 frames, 8.506 m/s. If a refactor changes either, it is a regression — report it rather than updating the expected value.
+- Permutation tests use 5,000 shuffles. Do not reduce this to make things run faster.
+
+# Working style
+
+- Distinguish correctness issues from style preferences; flag hidden assumptions, edge cases, and regressions explicitly.
+- State what you changed and what you did not verify.

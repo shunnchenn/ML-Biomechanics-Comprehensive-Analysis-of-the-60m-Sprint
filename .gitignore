@@ -1,0 +1,10 @@
+.DS_Store
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.venv/
+
+# Generated outputs (regenerable from the notebooks / sprint_outputs.py)
+mp4s/
+animations/
+figures/
