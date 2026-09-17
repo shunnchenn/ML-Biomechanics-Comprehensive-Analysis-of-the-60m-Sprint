@@ -30,6 +30,7 @@ from pathlib import Path
 import ezc3d
 import numpy as np
 import pandas as pd
+from scipy import stats
 from scipy.signal import find_peaks
 from scipy.interpolate import BSpline
 
@@ -1705,3 +1706,144 @@ def influence_report(X, y, pids):
     return pd.DataFrame({"pid": pids, "leverage": h, "residual": resid,
                          "cooks_D": cooks}).sort_values("cooks_D",
                                                         ascending=False)
+
+
+# ==========================================================================
+# 11 · Statistical parametric mapping — WHERE in the stride the effect is
+# ==========================================================================
+#
+# A range of motion is one number standing in for a 101-point curve, and it
+# cannot say WHEN in the stride fast and slow athletes diverge. Knee ROM mixes
+# two mechanically different things -- how far the knee collapses under load in
+# stance, and how far it folds in swing -- which have different causes and
+# different coaching answers.
+#
+# The test below correlates velocity against the angle at each phase point and
+# then asks which stretches of the curve are longer than chance produces. The
+# cluster step is what makes it a test rather than 101 separate ones: a single
+# point crossing threshold means little, a long contiguous run means a lot.
+
+
+def loo_r2_fast(X, y):
+    """LOO R-squared for OLS, via the hat matrix rather than by refitting.
+
+    For a linear model the leave-one-out residual has a closed form,
+    e_i / (1 - h_ii), so the whole cross-validation costs one fit. This agrees
+    with `loo_predict` to six decimal places and is what makes the model-search
+    null below affordable -- that null needs tens of thousands of fits, which is
+    hours of work the slow way and seconds this way.
+
+    Only valid for plain least squares. Ridge and the fPCA transforms still have
+    to go through `loo_predict`, because their preprocessing is refit per fold.
+    """
+    y = np.asarray(y, float)
+    A = np.column_stack([np.ones(len(y)), np.asarray(X, float).reshape(len(y), -1)])
+    H = A @ np.linalg.pinv(A.T @ A) @ A.T
+    e = y - H @ y
+    loo = e / (1 - np.clip(np.diag(H), None, 1 - 1e-12))
+    return float(1 - (loo ** 2).sum() / ((y - y.mean()) ** 2).sum())
+
+
+def _tstat_curve(curves, v):
+    """Point-by-point correlation with velocity, as a t statistic.
+
+    `curves` is (athletes, points). Returns (t, r), both length `points`.
+    """
+    c = curves - curves.mean(axis=0)
+    vv = v - v.mean()
+    denom = np.sqrt((c ** 2).sum(0) * (vv ** 2).sum())
+    r = (c * vv[:, None]).sum(0) / np.where(denom < 1e-12, 1.0, denom)
+    r = np.clip(r, -0.999999, 0.999999)
+    t = r * np.sqrt(len(v) - 2) / np.sqrt(1 - r ** 2)
+    return t, r
+
+
+def _clusters(t, t_crit):
+    """Contiguous runs where |t| exceeds the threshold, with their mass.
+
+    Cluster mass is the summed |t| over the run. Mass rather than length,
+    because a long weak run and a short strong one should not score the same.
+    """
+    over = np.abs(t) >= t_crit
+    out, i = [], 0
+    while i < len(over):
+        if over[i]:
+            j = i
+            while j + 1 < len(over) and over[j + 1]:
+                j += 1
+            out.append((i, j, float(np.abs(t[i:j + 1]).sum())))
+            i = j + 1
+        else:
+            i += 1
+    return out
+
+
+def spm_correlation(curves_by_pid, peak_vel, angle, alpha=0.05, n_perm=5000,
+                    seed=0):
+    """Where in the stride does this angle track speed? Cluster-level test.
+
+    One curve per athlete, one scalar velocity per athlete. At every phase point
+    the correlation is turned into a t statistic; runs of points above the
+    uncorrected threshold become candidate clusters; and the null is built by
+    shuffling the velocity labels and recording the LARGEST cluster mass each
+    time. A cluster is significant when it beats that distribution.
+
+    Shuffling the labels is the right null here because it preserves the shape
+    and the smoothness of every athlete's curve -- only the pairing with speed
+    is destroyed. A pointwise null would ignore that neighbouring points are
+    correlated, which is exactly why 101 separate tests over-report.
+
+    Returns a dict with the t curve, the r curve, the clusters and their
+    p-values, and the null distribution.
+    """
+    pids = sorted(curves_by_pid)
+    j = ANGLE_NAMES.index(angle)
+    C = np.array([curves_by_pid[p][:, j] for p in pids])
+    v = np.array([peak_vel[p] for p in pids], dtype=float)
+
+    t_crit = float(stats.t.ppf(1 - alpha / 2, len(v) - 2))
+    t, r = _tstat_curve(C, v)
+    found = _clusters(t, t_crit)
+
+    rng = np.random.default_rng(seed)
+    null = np.empty(n_perm)
+    for i in range(n_perm):
+        tp, _ = _tstat_curve(C, rng.permutation(v))
+        cl = _clusters(tp, t_crit)
+        null[i] = max((c[2] for c in cl), default=0.0)
+
+    clusters = [{"start_pct": a, "end_pct": b, "mass": m,
+                 "peak_r": float(r[a:b + 1][np.argmax(np.abs(r[a:b + 1]))]),
+                 "p": float((null >= m).mean())}
+                for a, b, m in found]
+    return {"angle": angle, "t": t, "r": r, "t_crit": t_crit,
+            "clusters": clusters, "null": null, "n": len(v), "pids": pids}
+
+
+def spm_report(curves_by_pid, peak_vel, angles, alpha=0.05, n_perm=5000,
+               seed=0, verbose=True):
+    """`spm_correlation` over a PRE-SPECIFIED list of angles, as a table.
+
+    The list is an argument and not a loop over all thirteen on purpose. With 30
+    athletes, testing every angle and reporting the best one reintroduces the
+    largest-of-many problem that the cluster test was brought in to control.
+    """
+    rows, detail = [], {}
+    for a in angles:
+        res = spm_correlation(curves_by_pid, peak_vel, a, alpha, n_perm, seed)
+        detail[a] = res
+        if not res["clusters"]:
+            rows.append({"angle": a, "cluster": "none", "peak_r": np.nan,
+                         "mass": np.nan, "p": np.nan})
+        for c in res["clusters"]:
+            rows.append({"angle": a,
+                         "cluster": f'{c["start_pct"]}-{c["end_pct"]} %',
+                         "peak_r": round(c["peak_r"], 3),
+                         "mass": round(c["mass"], 1),
+                         "p": round(c["p"], 4)})
+    table = pd.DataFrame(rows)
+    if verbose:
+        print(f"SPM, {n_perm} label shuffles, cluster-mass inference "
+              f"(alpha = {alpha}, n = {len(peak_vel)}):")
+        print(table.to_string(index=False))
+    return table, detail

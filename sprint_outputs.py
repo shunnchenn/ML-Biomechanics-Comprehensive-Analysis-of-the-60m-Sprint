@@ -1476,7 +1476,7 @@ def model_specs(feat):
     return specs, combo, pids
 
 
-def run_all_outputs(n_group=3, n_steps=10, every=1, dpi=100, n_perm=2000,
+def run_all_outputs(n_group=3, n_steps=10, every=1, dpi=100, n_perm=5000,
                     trials=True, verbose=True):
     """Every figure and every MP4, for every athlete. The whole output stage.
 
