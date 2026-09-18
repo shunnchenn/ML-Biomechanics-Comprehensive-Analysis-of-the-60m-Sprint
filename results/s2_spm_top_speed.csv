@@ -1,0 +1,5 @@
+angle,cluster,peak_r,mass,p
+knee_R,17-29 %,0.438,31.0,0.147
+knee_R,48-66 %,-0.541,55.0,0.0578
+hip_R,24-46 %,0.432,54.4,0.0708
+trunk_lean,none,,,
