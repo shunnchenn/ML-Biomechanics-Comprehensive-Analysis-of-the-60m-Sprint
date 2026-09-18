@@ -1,6 +1,6 @@
 # Legacy analysis map
 
-`Shun's Sprints Code/` and `Old Outputs/` are historical archives. They are not imported by the current pipeline. Keep them for qualitative figures, earlier reasoning, and provenance; use notebooks 04/05/07 for current numbers.
+`(4) Archive/Shun's Sprints Code` and `(4) Archive/Old Outputs` are historical archives (symlinks remain at the old root names). They are not imported by the current pipeline. Keep them for qualitative figures, earlier reasoning, and provenance; use notebooks 04/05/07 for current numbers.
 
 ## Big picture → detail
 
