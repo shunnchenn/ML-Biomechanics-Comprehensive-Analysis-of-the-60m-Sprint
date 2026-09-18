@@ -1,0 +1,2 @@
+placement_rms_m=0.0573021
+placement_max_m=0.119257

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSimDocument Version="40500">
+	<MarkerSet name="xsens_to_gait2392">
+		<objects>
+			<Marker name="R.ASIS">
+				<socket_parent_frame>/bodyset/pelvis</socket_parent_frame>
+				<location>0.020000 0.030000 0.128000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.ASIS">
+				<socket_parent_frame>/bodyset/pelvis</socket_parent_frame>
+				<location>0.020000 0.030000 -0.128000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="V.Sacral">
+				<socket_parent_frame>/bodyset/pelvis</socket_parent_frame>
+				<location>-0.160000 0.040000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Knee.Lat">
+				<socket_parent_frame>/bodyset/femur_r</socket_parent_frame>
+				<location>0.000000 -0.404000 0.050000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Knee.Med">
+				<socket_parent_frame>/bodyset/femur_r</socket_parent_frame>
+				<location>0.000000 -0.404000 -0.050000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Knee.Lat">
+				<socket_parent_frame>/bodyset/femur_l</socket_parent_frame>
+				<location>0.000000 -0.404000 -0.050000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Knee.Med">
+				<socket_parent_frame>/bodyset/femur_l</socket_parent_frame>
+				<location>0.000000 -0.404000 0.050000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Ankle.Lat">
+				<socket_parent_frame>/bodyset/tibia_r</socket_parent_frame>
+				<location>-0.005000 -0.410000 0.053000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Ankle.Med">
+				<socket_parent_frame>/bodyset/tibia_r</socket_parent_frame>
+				<location>0.006000 -0.389000 -0.038000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Ankle.Lat">
+				<socket_parent_frame>/bodyset/tibia_l</socket_parent_frame>
+				<location>-0.005000 -0.410000 -0.053000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Ankle.Med">
+				<socket_parent_frame>/bodyset/tibia_l</socket_parent_frame>
+				<location>0.006000 -0.389000 0.038000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Shank.Front">
+				<socket_parent_frame>/bodyset/tibia_r</socket_parent_frame>
+				<location>0.050000 -0.080000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Shank.Front">
+				<socket_parent_frame>/bodyset/tibia_l</socket_parent_frame>
+				<location>0.050000 -0.080000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Heel">
+				<socket_parent_frame>/bodyset/calcn_r</socket_parent_frame>
+				<location>-0.020000 0.020000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Heel">
+				<socket_parent_frame>/bodyset/calcn_l</socket_parent_frame>
+				<location>-0.020000 0.020000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Toe.Tip">
+				<socket_parent_frame>/bodyset/calcn_r</socket_parent_frame>
+				<location>0.260000 0.005000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Toe.Tip">
+				<socket_parent_frame>/bodyset/calcn_l</socket_parent_frame>
+				<location>0.260000 0.005000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Midfoot.Lat">
+				<socket_parent_frame>/bodyset/calcn_r</socket_parent_frame>
+				<location>0.100000 0.020000 0.040000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Midfoot.Lat">
+				<socket_parent_frame>/bodyset/calcn_l</socket_parent_frame>
+				<location>0.100000 0.020000 -0.040000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Toe.Med">
+				<socket_parent_frame>/bodyset/calcn_r</socket_parent_frame>
+				<location>0.190000 0.005000 -0.040000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Toe.Med">
+				<socket_parent_frame>/bodyset/calcn_l</socket_parent_frame>
+				<location>0.190000 0.005000 0.040000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="Sternum">
+				<socket_parent_frame>/bodyset/torso</socket_parent_frame>
+				<location>0.070000 0.300000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="Top.Head">
+				<socket_parent_frame>/bodyset/torso</socket_parent_frame>
+				<location>0.001000 0.657000 0.000000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="R.Acromium">
+				<socket_parent_frame>/bodyset/torso</socket_parent_frame>
+				<location>-0.030000 0.440000 0.150000</location>
+				<fixed>false</fixed>
+			</Marker>
+			<Marker name="L.Acromium">
+				<socket_parent_frame>/bodyset/torso</socket_parent_frame>
+				<location>-0.030000 0.440000 -0.150000</location>
+				<fixed>false</fixed>
+			</Marker>
+		</objects>
+		<groups/>
+	</MarkerSet>
+</OpenSimDocument>

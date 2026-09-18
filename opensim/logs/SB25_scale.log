@@ -1,0 +1,40 @@
+$ opensim-cmd run-tool SB25_scale_setup.xml
+(cwd=/Users/shunchen/Desktop/60m Project Folder/Pipeline/opensim/setup)
+--- returncode 0 ---
+===== STDOUT =====
+[info] Preparing to run ScaleTool.
+[info] Processing subject sprint_gait2392...
+[info] Step 1: Loading generic model
+[info] Updating Model file from 40000 to latest format...
+[info] Loaded model 3DGaitModel2392 from file /Users/shunchen/Desktop/60m Project Folder/Pipeline/opensim/models/gait2392_simbody.osim
+[info] Loading marker set from 'SB25_markerset.xml'.
+[info] Updated markers in model 3DGaitModel2392
+[info] Step 2: Scaling generic model
+[info] Loaded marker file ../trc/SB25.trc (25 markers, 531 frames)
+[info] Measurement 'torso'
+[info] 	pair 0 (V.Sacral, Top.Head): model = 0.701098, experimental = 0.900363
+[info] 	overall scale factor = 1.28422
+[info] Measurement 'pelvis'
+[info] 	pair 0 (R.ASIS, L.ASIS): model = 0.256, experimental = 0.3181
+[info] 	overall scale factor = 1.24258
+[info] Measurement 'shank'
+[info] 	pair 0 (R.Shank.Front, R.Ankle.Lat): model = 0.338724, experimental = 0.394766
+[info] 	pair 1 (L.Shank.Front, L.Ankle.Lat): model = 0.338724, experimental = 0.394699
+[info] 	overall scale factor = 1.16535
+[info] Measurement 'foot'
+[info] 	pair 0 (R.Heel, R.Toe.Tip): model = 0.280401, experimental = 0.288469
+[info] 	pair 1 (L.Heel, L.Toe.Tip): model = 0.280401, experimental = 0.288589
+[info] 	overall scale factor = 1.02898
+[info] Wrote model file '../out/SB25_scaled.osim' from model.
+[info] Wrote scale file '../out/SB25_scaleSet.xml' for model sprint_gait2392.
+[info] Step 3: Placing markers on model
+[info] Loaded marker file ../trc/SB25.trc (25 markers, 531 frames)
+[info] Averaged frames from time 0.0 to 0.15 in ../trc/SB25.trc (frames 1 to 10)
+[info] Deleted 0 unused markers from model sprint_gait2392.
+[info] Frame at (t = 0.0):	 total squared error = 0.0820883, marker error: RMS = 0.0573021, max = 0.119257 (Top.Head)
+[info] Moved markers in model sprint_gait2392 to match locations in marker file '../trc/SB25.trc'.
+[info] Wrote model file '../out/SB25_scaled.osim' from model sprint_gait2392.
+[info] Wrote marker file '../out/SB25_markers_placed.xml' from model sprint_gait2392.
+
+===== STDERR =====
+

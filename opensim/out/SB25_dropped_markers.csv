@@ -1,0 +1,15 @@
+xsens_marker,reason
+pHipOrigin,Xsens synthetic hip origin; hip centre is set by the model from the pelvis markers.
+pRightGreaterTrochanter,No community-vetted greater-trochanter landmark in the gait2392 set; placing one needs the Xsens protocol. Femur is still fully posed by the hip joint + 2 knee epicondyles.
+pLeftGreaterTrochanter,See pRightGreaterTrochanter.
+pRightPatella,gait2392 has no patella body/marker; dropped rather than invent a location.
+pLeftPatella,See pRightPatella.
+pRightCSI,Iliac-crest landmark not in the Delp set; pelvis already posed by ASIS×2 + sacrum.
+pLeftCSI,See pRightCSI.
+pRightIschialTub,Ischial tuberosity not in the Delp set; redundant for pelvis pose.
+pLeftIschialTub,See pRightIschialTub.
+pRightPivotFoot,Redundant foot construction point.
+pLeftPivotFoot,Redundant foot construction point.
+pRightHeelCenter,Redundant with pRightHeelFoot.
+pLeftHeelCenter,Redundant with pLeftHeelFoot.
+arms/hands/spine/head-aux,"gait2392 has no arm segments; upper spine, elbows, wrists, hands and auxiliary head markers have no model home. (A full-body model such as Rajagopal is the way to use them.)"

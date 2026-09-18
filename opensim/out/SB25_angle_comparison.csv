@@ -1,0 +1,7 @@
+joint,osim_coord,sign_conversion,pearson_r_raw,pearson_r_after_known_conversion,offset_deg_raw_mean,offset_deg_converted_mean,peak_offset_deg_converted,osim_native_mean_deg,osim_converted_mean_deg,pipe_mean_deg,osim_converted_peak_deg,pipe_peak_deg,osim_ROM_deg,pipe_ROM_deg
+hip_R,hip_flexion_r,none,0.9903,0.9903,-21.42,-21.42,-14.49,-8.48,-8.48,12.94,68.74,83.23,124.06,125.35
+hip_L,hip_flexion_l,none,0.9889,0.9889,-20.84,-20.84,-22.91,-6.92,-6.92,13.92,95.44,118.35,156.29,162.45
+knee_R,knee_angle_r,osim_flex_neg -> ISB_flex_pos (* -1),-0.9965,0.9965,-131.68,1.47,-0.39,-66.58,66.58,65.11,137.24,137.63,139.64,146.95
+knee_L,knee_angle_l,osim_flex_neg -> ISB_flex_pos (* -1),-0.9935,0.9935,-131.79,1.77,1.09,-66.78,66.78,65.01,141.86,140.77,142.25,146.07
+ankle_R,ankle_angle_r,none,0.9921,0.9921,2.81,2.81,5.43,-9.44,-9.44,-12.25,37.83,32.41,93.19,88.92
+ankle_L,ankle_angle_l,none,0.9933,0.9933,2.06,2.06,7.64,-6.41,-6.41,-8.47,49.32,41.68,98.86,87.85

@@ -1,0 +1,49 @@
+$ opensim-cmd run-tool SB25_id_swing_R_setup.xml
+(cwd=/Users/shunchen/Desktop/60m Project Folder/Pipeline/opensim/setup)
+--- returncode 0 ---
+===== STDOUT =====
+[info] Preparing to run InverseDynamicsTool.
+[info] Loaded model sprint_gait2392 from file ../out/SB25_scaled.osim
+[warning] Couldn't find file 'treadmill.vtp'.
+[warning] Couldn't find file 'sacrum.vtp'.
+[warning] Couldn't find file 'pelvis.vtp'.
+[warning] Couldn't find file 'l_pelvis.vtp'.
+[warning] Couldn't find file 'femur_r.vtp'.
+[warning] Couldn't find file 'tibia_r.vtp'.
+[warning] Couldn't find file 'fibula.vtp'.
+[warning] Couldn't find file 'talus.vtp'.
+[warning] Couldn't find file 'foot.vtp'.
+[warning] Couldn't find file 'bofoot.vtp'.
+[warning] Couldn't find file 'femur_l.vtp'.
+[warning] Couldn't find file 'tibia_l.vtp'.
+[warning] Couldn't find file 'l_fibula.vtp'.
+[warning] Couldn't find file 'l_talus.vtp'.
+[warning] Couldn't find file 'l_foot.vtp'.
+[warning] Couldn't find file 'l_bofoot.vtp'.
+[warning] Couldn't find file 'hat_spine.vtp'.
+[warning] Couldn't find file 'hat_jaw.vtp'.
+[warning] Couldn't find file 'hat_skull.vtp'.
+[warning] Couldn't find file 'hat_ribs.vtp'.
+
+               MODEL: sprint_gait2392
+         coordinates: 23
+              forces: 92
+           actuators: 92
+             muscles: 92
+            analyses: 0
+              probes: 0
+              bodies: 12
+              joints: 12
+         constraints: 0
+             markers: 25
+         controllers: 0
+  contact geometries: 0
+misc modelcomponents: 0
+[info] Running tool sprint_id_swing...
+[info] No external loads will be applied (external loads file not specified).
+[info] Storage: read data file = ../out/SB25_ik.mot (nr=531 nc=24)
+[info] Low-pass filtering coordinates data with a cutoff frequency of 10.0...
+[info] InverseDynamicsTool: 21 time frames in 226 millisecond(s).
+
+===== STDERR =====
+

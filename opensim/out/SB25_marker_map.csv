@@ -1,0 +1,26 @@
+model_marker,body,xsens_source,ik_weight,confidence,loc_x,loc_y,loc_z,note
+R.ASIS,pelvis,pRightASI,10.0,exact,0.02,0.03,0.128,right ASIS
+L.ASIS,pelvis,pLeftASI,10.0,exact,0.02,0.03,-0.128,left ASIS
+V.Sacral,pelvis,pSacrum,10.0,exact,-0.16,0.04,0.0,sacrum / posterior pelvis
+R.Knee.Lat,femur_r,pRightKneeLatEpicondyle,5.0,exact,0.0,-0.404,0.05,lateral femoral epicondyle
+R.Knee.Med,femur_r,pRightKneeMedEpicondyle,5.0,exact,0.0,-0.404,-0.05,medial femoral epicondyle
+L.Knee.Lat,femur_l,pLeftKneeLatEpicondyle,5.0,exact,0.0,-0.404,-0.05,lateral femoral epicondyle
+L.Knee.Med,femur_l,pLeftKneeMedEpicondyle,5.0,exact,0.0,-0.404,0.05,medial femoral epicondyle
+R.Ankle.Lat,tibia_r,pRightLatMalleolus,5.0,exact,-0.005,-0.41,0.053,lateral malleolus
+R.Ankle.Med,tibia_r,pRightMedMalleolus,5.0,exact,0.006,-0.389,-0.038,medial malleolus
+L.Ankle.Lat,tibia_l,pLeftLatMalleolus,5.0,exact,-0.005,-0.41,-0.053,lateral malleolus
+L.Ankle.Med,tibia_l,pLeftMedMalleolus,5.0,exact,0.006,-0.389,0.038,medial malleolus
+R.Shank.Front,tibia_r,pRightTibialTub,2.0,approx,0.05,-0.08,0.0,tibial tuberosity ≈ anterior proximal shank
+L.Shank.Front,tibia_l,pLeftTibialTub,2.0,approx,0.05,-0.08,0.0,tibial tuberosity ≈ anterior proximal shank
+R.Heel,calcn_r,pRightHeelFoot,2.0,exact,-0.02,0.02,0.0,posterior calcaneus / heel
+L.Heel,calcn_l,pLeftHeelFoot,2.0,exact,-0.02,0.02,0.0,posterior calcaneus / heel
+R.Toe.Tip,calcn_r,pRightToe,2.0,exact,0.26,0.005,0.0,toe tip
+L.Toe.Tip,calcn_l,pLeftToe,2.0,exact,0.26,0.005,0.0,toe tip
+R.Midfoot.Lat,calcn_r,pRightFifthMetatarsal,1.0,approx,0.1,0.02,0.04,5th metatarsal ≈ lateral midfoot
+L.Midfoot.Lat,calcn_l,pLeftFifthMetatarsal,1.0,approx,0.1,0.02,-0.04,5th metatarsal ≈ lateral midfoot
+R.Toe.Med,calcn_r,pRightFirstMetatarsal,1.0,uncertain,0.19,0.005,-0.04,"1st metatarsal ≈ medial forefoot (fixed on calcn, ignores MTP)"
+L.Toe.Med,calcn_l,pLeftFirstMetatarsal,1.0,uncertain,0.19,0.005,0.04,"1st metatarsal ≈ medial forefoot (fixed on calcn, ignores MTP)"
+Sternum,torso,pIJ,1.0,uncertain,0.07,0.3,0.0,Xsens jugular notch (pIJ) vs model mid-sternum marker
+Top.Head,torso,pTopOfHead,0.5,approx,0.001,0.657,0.0,top of head; head lumped into torso
+R.Acromium,torso,pRightAcromion,1.0,approx,-0.03,0.44,0.15,right acromion (arm lumped in torso)
+L.Acromium,torso,pLeftAcromion,1.0,approx,-0.03,0.44,-0.15,left acromion (arm lumped in torso)

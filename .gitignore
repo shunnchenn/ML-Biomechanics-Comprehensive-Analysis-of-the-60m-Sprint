@@ -8,3 +8,8 @@ __pycache__/
 mp4s/
 animations/
 figures/
+
+# OpenSim: third-party tutorial extract and working copies (models/trc/setup/out/logs are kept)
+opensim/_extract/
+opensim/work/
+opensim/.DS_Store

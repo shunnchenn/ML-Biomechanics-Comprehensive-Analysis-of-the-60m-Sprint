@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSimDocument Version="40500">
+	<ScaleTool name="sprint_gait2392">
+		<mass>-1</mass>
+		<height>1925.0</height>
+		<age>-1</age>
+		<notes>NOVEL/EXPERIMENTAL. MASS UNMEASURED — generic gait2392 masses retained. Stature-scaled then marker-pair refined.</notes>
+		<GenericModelMaker>
+			<model_file>../models/gait2392_simbody.osim</model_file>
+			<marker_set_file>SB25_markerset.xml</marker_set_file>
+		</GenericModelMaker>
+		<ModelScaler>
+			<apply>true</apply>
+			<scaling_order> manualScale measurements </scaling_order>
+			<MeasurementSet><objects>
+				<Measurement name="torso">
+					<apply>true</apply>
+					<MarkerPairSet><objects>
+						<MarkerPair><markers>V.Sacral Top.Head</markers></MarkerPair>
+					</objects><groups/></MarkerPairSet>
+					<BodyScaleSet><objects>
+						<BodyScale name="torso"><axes>X Y Z</axes></BodyScale>
+					</objects><groups/></BodyScaleSet>
+				</Measurement>
+				<Measurement name="pelvis">
+					<apply>true</apply>
+					<MarkerPairSet><objects>
+						<MarkerPair><markers>R.ASIS L.ASIS</markers></MarkerPair>
+					</objects><groups/></MarkerPairSet>
+					<BodyScaleSet><objects>
+						<BodyScale name="pelvis"><axes>X Y Z</axes></BodyScale>
+					</objects><groups/></BodyScaleSet>
+				</Measurement>
+				<Measurement name="shank">
+					<apply>true</apply>
+					<MarkerPairSet><objects>
+						<MarkerPair><markers>R.Shank.Front R.Ankle.Lat</markers></MarkerPair>
+						<MarkerPair><markers>L.Shank.Front L.Ankle.Lat</markers></MarkerPair>
+					</objects><groups/></MarkerPairSet>
+					<BodyScaleSet><objects>
+						<BodyScale name="tibia_r"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="tibia_l"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="talus_r"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="talus_l"><axes>X Y Z</axes></BodyScale>
+					</objects><groups/></BodyScaleSet>
+				</Measurement>
+				<Measurement name="foot">
+					<apply>true</apply>
+					<MarkerPairSet><objects>
+						<MarkerPair><markers>R.Heel R.Toe.Tip</markers></MarkerPair>
+						<MarkerPair><markers>L.Heel L.Toe.Tip</markers></MarkerPair>
+					</objects><groups/></MarkerPairSet>
+					<BodyScaleSet><objects>
+						<BodyScale name="calcn_r"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="calcn_l"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="toes_r"><axes>X Y Z</axes></BodyScale>
+						<BodyScale name="toes_l"><axes>X Y Z</axes></BodyScale>
+					</objects><groups/></BodyScaleSet>
+				</Measurement>
+			</objects><groups/></MeasurementSet>
+			<ScaleSet><objects>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>pelvis</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>femur_r</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>tibia_r</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>talus_r</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>calcn_r</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>toes_r</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>femur_l</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>tibia_l</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>talus_l</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>calcn_l</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>toes_l</segment>
+					<apply>true</apply>
+				</Scale>
+				<Scale>
+					<scales> 1.06944444 1.06944444 1.06944444 </scales>
+					<segment>torso</segment>
+					<apply>true</apply>
+				</Scale>
+			</objects><groups/></ScaleSet>
+			<marker_file>../trc/SB25.trc</marker_file>
+			<time_range>0.000000 8.833333</time_range>
+			<preserve_mass_distribution>true</preserve_mass_distribution>
+			<output_model_file>../out/SB25_scaled.osim</output_model_file>
+			<output_scale_file>../out/SB25_scaleSet.xml</output_scale_file>
+		</ModelScaler>
+		<MarkerPlacer>
+			<apply>true</apply>
+			<IKTaskSet><objects>
+				<IKMarkerTask name="R.ASIS">
+					<apply>true</apply>
+					<weight>10.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.ASIS">
+					<apply>true</apply>
+					<weight>10.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="V.Sacral">
+					<apply>true</apply>
+					<weight>10.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Knee.Lat">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Knee.Med">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Knee.Lat">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Knee.Med">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Ankle.Lat">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Ankle.Med">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Ankle.Lat">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Ankle.Med">
+					<apply>true</apply>
+					<weight>5.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Shank.Front">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Shank.Front">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Heel">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Heel">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Toe.Tip">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Toe.Tip">
+					<apply>true</apply>
+					<weight>2.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Midfoot.Lat">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Midfoot.Lat">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Toe.Med">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Toe.Med">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="Sternum">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="Top.Head">
+					<apply>true</apply>
+					<weight>0.5</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Acromium">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Acromium">
+					<apply>true</apply>
+					<weight>1.0</weight>
+				</IKMarkerTask>
+			</objects><groups/></IKTaskSet>
+			<marker_file>../trc/SB25.trc</marker_file>
+			<time_range>0.000000 0.150000</time_range>
+			<output_motion_file>../out/SB25_static_ik.mot</output_motion_file>
+			<output_model_file>../out/SB25_scaled.osim</output_model_file>
+			<output_marker_file>../out/SB25_markers_placed.xml</output_marker_file>
+			<max_marker_movement>-1</max_marker_movement>
+		</MarkerPlacer>
+	</ScaleTool>
+</OpenSimDocument>

@@ -31,6 +31,7 @@ import ezc3d
 import numpy as np
 import pandas as pd
 from scipy import stats
+from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 from scipy.interpolate import BSpline
 
@@ -1847,3 +1848,347 @@ def spm_report(curves_by_pid, peak_vel, angles, alpha=0.05, n_perm=5000,
               f"(alpha = {alpha}, n = {len(peak_vel)}):")
         print(table.to_string(index=False))
     return table, detail
+
+
+# ==========================================================================
+# 12 · Acceleration process model — step mechanics and the v(t) profile
+# ==========================================================================
+#
+# Sections 4-9 describe the SHAPE of the movement (joint-angle cycles, fPCA).
+# This section describes the OUTCOME of the first steps out of the blocks: how
+# far and how often the athlete steps, and how quickly forward velocity rises.
+#
+# These features are PRE-SPECIFIED and live in their own table. They are not
+# wired into `build_feature_table`'s audited X. Touchdown geometry is deferred.
+#
+# Two honest limits:
+#   * 60 Hz sampling. One frame is 16.7 ms, so a ~100 ms ground contact is
+#     resolved to about ±17 ms. Contact and flight times are KINEMATIC estimates
+#     from foot height, not force-plate measurements.
+#   * No force plates and no measured body mass. The anthro sheet has no mass
+#     column; RedCap has weight but is not exported yet. F0 and Pmax are
+#     therefore None unless a mass is passed in.
+
+
+_CONTACT_BAND_M = 0.03   # foot is "down" within 3 cm of its height minimum
+_G_MS2 = 9.81
+
+
+def _monoexp_vt(t, vmax, tau):
+    return vmax * (1.0 - np.exp(-t / tau))
+
+
+def _contact_band(foot_z, contact, contact_band_m=_CONTACT_BAND_M):
+    """Walk out from a height minimum while the foot stays near the floor."""
+    floor = foot_z[contact]
+    td = int(contact)
+    while td > 0 and foot_z[td - 1] - floor <= contact_band_m:
+        td -= 1
+    to = int(contact)
+    while to < len(foot_z) - 1 and foot_z[to + 1] - floor <= contact_band_m:
+        to += 1
+    return td, to
+
+
+def foot_contact_events(mk, foot="both", prominence=STRIDE_PROMINENCE_M):
+    """Kinematic touchdown / toe-off from foot-height minima.
+
+    Same peak finder as `find_first_steps` (`ANGLE_STRIDE_MIN_DISTANCE` and
+    `prominence`, default `STRIDE_PROMINENCE_M`). Around each minimum the foot
+    is taken to be down while its height stays within 3 cm of that trough.
+    There is no force plate; at 60 Hz the edges are good to about one frame.
+
+    Parameters
+    ----------
+    mk : ndarray, shape (n_frames, n_segments, 3)
+        Segment centroids after `clean_for_angles` (ISB / pipeline axes).
+    foot : {'both', 'R', 'L'}
+    prominence : float
+        Metres, passed to `find_peaks` on negated foot height.
+
+    Returns
+    -------
+    list of dict
+        Ordered by contact frame: ``foot``, ``contact`` (trough frame),
+        ``touchdown``, ``toeoff``.
+    """
+    wanted = {"R": IDX_R_FOOT, "L": IDX_L_FOOT}
+    if foot == "both":
+        sides = ("R", "L")
+    elif foot in wanted:
+        sides = (foot,)
+    else:
+        raise ValueError("foot must be 'both', 'R', or 'L'")
+
+    found = []
+    for side in sides:
+        foot_z = mk[:, wanted[side], _VERT]
+        contacts, _ = find_peaks(-foot_z, distance=ANGLE_STRIDE_MIN_DISTANCE,
+                                 prominence=prominence)
+        for c in contacts:
+            td, to = _contact_band(foot_z, int(c))
+            found.append({"foot": side, "contact": int(c),
+                          "touchdown": td, "toeoff": to})
+    found.sort(key=lambda e: e["contact"])
+    return found
+
+
+def com_horizontal_velocity(raw64, fs):
+    """Fore-aft velocity of a pelvis-centroid CoM proxy (m/s).
+
+    A true centre of mass needs segment masses this study does not have. The
+    proxy is the mean of the seven pelvis markers in `raw64` (`MK_PELVIS_ALL`,
+    indices 0–6: the Xsens pelvis cluster). That is the same point
+    `horizontal_travel_axis` uses for alignment, and the one least tugged about
+    by arm and leg swing. It is NOT the 3-D thoracic speed that
+    `compute_velocity` reports for the audited peak.
+
+    After `clean_for_angles` the AP axis is forward, so this is the gradient of
+    pelvis AP position. Returns a 1-D array of length n_frames.
+    """
+    pos_fwd = raw64[:, MK_PELVIS_ALL, _AP].mean(axis=1)
+    return np.gradient(pos_fwd, 1.0 / fs)
+
+
+def step_spatiotemporal(mk, raw64, fs, n_steps=8):
+    """Per-step length, contact/flight time, frequency and velocity.
+
+    Step windows come from `find_first_steps` (alternate-foot contact to
+    contact). Contact and flight times use the kinematic bands from
+    `foot_contact_events`. Step length is the fore-aft distance between the
+    contacting heels in `raw64` (`MK_R_HEEL` / `MK_L_HEEL`) at the two contact
+    frames.
+
+    Columns: ``step``, ``foot``, ``step_length_m``, ``contact_time_s``,
+    ``flight_time_s``, ``step_frequency_hz``, ``step_velocity_ms``.
+
+    ``flight_time_s`` can go slightly negative during early double support when
+    kinematic toe-off is a frame late; that is left visible, not clipped.
+    """
+    windows, _rejected = find_first_steps(mk, n_steps=n_steps)
+    events = {e["contact"]: e for e in foot_contact_events(mk, foot="both")}
+    heel = {"R": MK_R_HEEL, "L": MK_L_HEEL}
+    rows = []
+    for i, (a, b) in enumerate(windows):
+        e0, e1 = events.get(int(a)), events.get(int(b))
+        if e0 is None or e1 is None:
+            continue
+        foot0, foot1 = e0["foot"], e1["foot"]
+        step_len = float(raw64[b, heel[foot1], _AP] - raw64[a, heel[foot0], _AP])
+        step_time = (b - a) / fs
+        contact_time = (e0["toeoff"] - e0["touchdown"]) / fs
+        flight_time = (b - e0["toeoff"]) / fs
+        rows.append({
+            "step": i + 1,
+            "foot": foot0,
+            "step_length_m": step_len,
+            "contact_time_s": contact_time,
+            "flight_time_s": flight_time,
+            "step_frequency_hz": (1.0 / step_time) if step_time > 0 else np.nan,
+            "step_velocity_ms": (step_len / step_time) if step_time > 0 else np.nan,
+        })
+    return pd.DataFrame(rows)
+
+
+def step_feature_slopes(step_df, n_steps=8):
+    """Ordinary-least-squares slope of each spatiotemporal column vs step number.
+
+    Fits the first `n_steps` rows (or fewer if the table is shorter). Returns a
+    dict ``{column: slope}`` in that column's SI unit per step. Empty / too-short
+    columns yield NaN.
+    """
+    cols = ["step_length_m", "contact_time_s", "flight_time_s",
+            "step_frequency_hz", "step_velocity_ms"]
+    if step_df is None or len(step_df) == 0:
+        return {c: np.nan for c in cols}
+    use = step_df.iloc[:n_steps]
+    x = use["step"].to_numpy(dtype=float) if "step" in use.columns \
+        else np.arange(1, len(use) + 1, dtype=float)
+    out = {}
+    for c in cols:
+        y = use[c].to_numpy(dtype=float) if c in use.columns \
+            else np.full(len(use), np.nan)
+        mask = np.isfinite(x) & np.isfinite(y)
+        if mask.sum() < 2:
+            out[c] = np.nan
+        else:
+            out[c] = float(np.polyfit(x[mask], y[mask], 1)[0])
+    return out
+
+
+def velocity_time_fit(vel_h, fs, t_window=None):
+    """Fit v(t) = vmax * (1 - exp(-t / tau)) to horizontal velocity.
+
+    Most athletes do not plateau in 60 m, so tau and vmax are extrapolations
+    beyond the recorded trial, not observed top speed. They summarise the rise
+    that *was* captured; they are not a measured maximum.
+
+    Parameters
+    ----------
+    vel_h : ndarray
+        Horizontal (fore-aft) velocity, typically from `com_horizontal_velocity`.
+    fs : float
+        Sampling rate in Hz.
+    t_window : (t0, t1) or None
+        Fit window in seconds from trial t = 0. None uses the whole trace.
+
+    Returns
+    -------
+    dict
+        ``vmax``, ``tau``, ``a0`` (= vmax / tau), ``rmse``, ``r2``,
+        ``n_samples``, ``fit_ok``. On failure the numeric fields are NaN and
+        ``fit_ok`` is False.
+    """
+    vel_h = np.asarray(vel_h, dtype=float)
+    t = np.arange(len(vel_h), dtype=float) / fs
+    if t_window is not None:
+        t0, t1 = t_window
+        keep = (t >= t0) & (t <= t1)
+        t, vel_h = t[keep], vel_h[keep]
+    mask = np.isfinite(t) & np.isfinite(vel_h)
+    t, vel_h = t[mask], vel_h[mask]
+
+    failed = {"vmax": np.nan, "tau": np.nan, "a0": np.nan, "rmse": np.nan,
+              "r2": np.nan, "n_samples": int(len(vel_h)), "fit_ok": False}
+    if len(vel_h) < 5:
+        return failed
+
+    v_guess = float(np.nanmax(vel_h))
+    try:
+        popt, _ = curve_fit(
+            _monoexp_vt, t, vel_h,
+            p0=[max(v_guess, 1.0), 0.8],
+            bounds=([0.1, 0.05], [20.0, 8.0]),
+            maxfev=20000,
+        )
+    except (RuntimeError, ValueError):
+        return failed
+    vmax, tau = float(popt[0]), float(popt[1])
+    if not np.isfinite(vmax) or not np.isfinite(tau) or tau <= 0:
+        return failed
+    resid = vel_h - _monoexp_vt(t, vmax, tau)
+    rmse = float(np.sqrt(np.mean(resid ** 2)))
+    ss_tot = float(np.sum((vel_h - vel_h.mean()) ** 2))
+    r2 = float(1.0 - np.sum(resid ** 2) / ss_tot) if ss_tot > 0 else np.nan
+    return {"vmax": vmax, "tau": tau, "a0": vmax / tau, "rmse": rmse,
+            "r2": r2, "n_samples": int(len(vel_h)), "fit_ok": True}
+
+
+def fv_profile_samozino(vel_h, fs, body_mass=None, stature=None, t_window=None):
+    """Samozino / Morin field force–velocity profile from v(t).
+
+    Always returns the mass-free quantities V0, tau, a0, RFmax, DRF from the
+    mono-exponential fit (aero neglected: Fair needs mass). F0 and Pmax are
+    filled only when `body_mass` is given; otherwise they are None and
+    ``mass_available`` is False.
+
+    The anthro sheet (`PARTICIPANT_ANTHRO`) has no mass column. RedCap has
+    weight but is not exported yet, so calling this without `body_mass` is the
+    honest default. `stature` is accepted for a future aero term that also
+    needs mass; it is unused while mass is missing.
+
+    RFmax = a0 / sqrt(a0² + g²) (mass cancels). DRF is the OLS slope of the
+    modelled RF–v relationship over the fitted samples.
+    """
+    _ = stature  # aero area needs mass as well; not used in the mass-free path
+    fit = velocity_time_fit(vel_h, fs, t_window=t_window)
+    out = {
+        "V0": np.nan, "tau": np.nan, "a0": np.nan,
+        "RFmax": np.nan, "DRF": np.nan,
+        "F0": None, "Pmax": None,
+        "mass_available": body_mass is not None,
+        "fit_ok": False,
+    }
+    if not fit["fit_ok"]:
+        return out
+
+    V0, tau = fit["vmax"], fit["tau"]
+    a0 = V0 / tau
+    rfmax = a0 / np.sqrt(a0 ** 2 + _G_MS2 ** 2)
+
+    t = np.arange(len(vel_h), dtype=float) / fs
+    if t_window is not None:
+        t0, t1 = t_window
+        t = t[(t >= t0) & (t <= t1)]
+    v_m = _monoexp_vt(t, V0, tau)
+    a_m = a0 * np.exp(-t / tau)
+    if body_mass is not None:
+        # Still no aero: k needs Af(mass, stature). Horizontal force is m*a.
+        Fh = body_mass * a_m
+        Fg = body_mass * _G_MS2
+        RF = Fh / np.sqrt(Fh ** 2 + Fg ** 2)
+        out["F0"] = float(body_mass * a0)
+        out["Pmax"] = float(body_mass * a0 * V0 / 4.0)
+    else:
+        RF = a_m / np.sqrt(a_m ** 2 + _G_MS2 ** 2)
+
+    mask = np.isfinite(v_m) & np.isfinite(RF)
+    if mask.sum() >= 2:
+        drf = float(np.polyfit(v_m[mask], RF[mask], 1)[0])
+    else:
+        drf = np.nan
+
+    out.update({"V0": float(V0), "tau": float(tau), "a0": float(a0),
+                "RFmax": float(rfmax), "DRF": drf, "fit_ok": True})
+    return out
+
+
+def build_accel_feature_table(n_steps=8, t_window=None, masses=None,
+                              verbose=False):
+    """Cohort table of acceleration-process features.
+
+    Separate from `build_feature_table`. Does not mutate audited X. One row
+    per athlete: spatiotemporal means and slopes over the first `n_steps`,
+    plus the mass-free Samozino profile. `masses` is an optional {pid: kg}
+    dict; without it F0 and Pmax stay missing.
+
+    Returns a DataFrame indexed by pid. Athletes that fail to load are skipped.
+    """
+    masses = masses or {}
+    rows = []
+    index = []
+    for fpath in sorted(C3D_DIR.glob("*.c3d")):
+        pid = fpath.stem.split("-")[0].strip()
+        if pid in EXCLUDED_PIDS:
+            continue
+        try:
+            tr = clean_for_angles(fpath)
+        except Exception as e:
+            if verbose:
+                print(f"  skipped {pid}: {e}")
+            continue
+        steps = step_spatiotemporal(tr["mk"], tr["raw64"], tr["fs"],
+                                    n_steps=n_steps)
+        slopes = step_feature_slopes(steps, n_steps=n_steps)
+        vel_h = com_horizontal_velocity(tr["raw64"], tr["fs"])
+        fv = fv_profile_samozino(
+            vel_h, tr["fs"],
+            body_mass=masses.get(pid),
+            stature=PARTICIPANT_ANTHRO.get(pid, {}).get("body_height"),
+            t_window=t_window,
+        )
+        row = {
+            "n_steps": int(len(steps)),
+            "step_length_m_mean": float(steps["step_length_m"].mean())
+                if len(steps) else np.nan,
+            "contact_time_s_mean": float(steps["contact_time_s"].mean())
+                if len(steps) else np.nan,
+            "flight_time_s_mean": float(steps["flight_time_s"].mean())
+                if len(steps) else np.nan,
+            "step_frequency_hz_mean": float(steps["step_frequency_hz"].mean())
+                if len(steps) else np.nan,
+            "step_velocity_ms_mean": float(steps["step_velocity_ms"].mean())
+                if len(steps) else np.nan,
+        }
+        row.update({f"slope_{k}": v for k, v in slopes.items()})
+        row.update({
+            "V0": fv["V0"], "tau": fv["tau"], "a0": fv["a0"],
+            "RFmax": fv["RFmax"], "DRF": fv["DRF"],
+            "F0": fv["F0"], "Pmax": fv["Pmax"],
+            "mass_available": fv["mass_available"],
+            "fit_ok": fv["fit_ok"],
+        })
+        rows.append(row)
+        index.append(pid)
+    return pd.DataFrame(rows, index=index)
+
