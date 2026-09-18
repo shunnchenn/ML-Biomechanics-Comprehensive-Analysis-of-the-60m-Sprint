@@ -1865,9 +1865,10 @@ def spm_report(curves_by_pid, peak_vel, angles, alpha=0.05, n_perm=5000,
 #   * 60 Hz sampling. One frame is 16.7 ms, so a ~100 ms ground contact is
 #     resolved to about ±17 ms. Contact and flight times are KINEMATIC estimates
 #     from foot height, not force-plate measurements.
-#   * No force plates and no measured body mass. The anthro sheet has no mass
-#     column; RedCap has weight but is not exported yet. F0 and Pmax are
-#     therefore None unless a mass is passed in.
+#   * Mass-free by design. No force plates and no measured body mass. The
+#     analysis target is a0, V0, tau, RFmax, DRF (mass cancels). F0 and Pmax
+#     are optional unit conversions if a mass is passed; they are not the
+#     scientific default and are never filled with a dummy kg.
 
 
 _CONTACT_BAND_M = 0.03   # foot is "down" within 3 cm of its height minimum
@@ -2078,17 +2079,17 @@ def fv_profile_samozino(vel_h, fs, body_mass=None, stature=None, t_window=None):
     """Samozino / Morin field force–velocity profile from v(t).
 
     Always returns the mass-free quantities V0, tau, a0, RFmax, DRF from the
-    mono-exponential fit (aero neglected: Fair needs mass). F0 and Pmax are
-    filled only when `body_mass` is given; otherwise they are None and
-    ``mass_available`` is False.
+    mono-exponential fit (aero neglected: Fair needs mass). That mass-free
+    profile is the intended analysis. F0 and Pmax are filled only when
+    `body_mass` is given; otherwise they are None and ``mass_available`` is
+    False. Do not pass a dummy mass to invent newtons.
 
-    The anthro sheet (`PARTICIPANT_ANTHRO`) has no mass column. RedCap has
-    weight but is not exported yet, so calling this without `body_mass` is the
-    honest default. `stature` is accepted for a future aero term that also
-    needs mass; it is unused while mass is missing.
+    `stature` is accepted for a future aero term that also needs mass; it is
+    unused on the mass-free path.
 
-    RFmax = a0 / sqrt(a0² + g²) (mass cancels). DRF is the OLS slope of the
-    modelled RF–v relationship over the fitted samples.
+    RFmax = a0 / sqrt(a0² + g²) (mass cancels). It is a strictly increasing
+    function of a0, so a0 and RFmax are not two independent findings. DRF is
+    the OLS slope of the modelled RF–v relationship over the fitted samples.
     """
     _ = stature  # aero area needs mass as well; not used in the mass-free path
     fit = velocity_time_fit(vel_h, fs, t_window=t_window)
@@ -2139,8 +2140,9 @@ def build_accel_feature_table(n_steps=8, t_window=None, masses=None,
 
     Separate from `build_feature_table`. Does not mutate audited X. One row
     per athlete: spatiotemporal means and slopes over the first `n_steps`,
-    plus the mass-free Samozino profile. `masses` is an optional {pid: kg}
-    dict; without it F0 and Pmax stay missing.
+    plus the mass-free Samozino profile (`a0`, `V0`, `tau`, `RFmax`, `DRF`).
+    `masses` is an optional {pid: kg} dict for optional F0/Pmax conversion;
+    the default (no masses) is the intended mass-free table.
 
     Returns a DataFrame indexed by pid. Athletes that fail to load are skipped.
     """
