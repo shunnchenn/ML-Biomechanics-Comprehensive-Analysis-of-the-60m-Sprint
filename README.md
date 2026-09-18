@@ -4,28 +4,6 @@
 
 *Mean-cycle skeleton overlay of the three faster vs three slower athletes (blue = faster). [Source MP4](animations/representative_top3_vs_bottom3.mp4)*
 
-## What it looks like
-
-![SB80 block exit and first three steps](figures/Block%20Start/block_exit_SB80.png)
-
-*SB80 stick figures from set through block exit and the first three steps.*
-
-![PC1 reconstructed on the skeleton](figures/pc1_anatomy.png)
-
-*Angle fPCA PC1 drawn on the skeleton at four points in the stride cycle (blue = faster; 1.75 m scale is drawing only).*
-
-![Leave-one-out kinematic model comparison](figures/model_comparison_loocv.png)
-
-*Leave-one-out R² for kinematic models of peak velocity; the audited headline remains knee ROM + height.*
-
-![Pelvis speed with a penalised B-spline](figures/velocity_bspline_fit.png)
-
-*Pelvis AP speed with a penalised B-spline so peak velocity is read from the curve, not the noisy derivative.*
-
-![OpenSim IK vs pipeline on SB25](opensim/out/SB25_summary.png)
-
-*SB25 OpenSim gait2392 IK against the pipeline (experimental, isolated). IK is the mass-free deliverable; ID moments use generic mass.*
-
 30 athletes · Xsens 64 virtual landmarks · 60 Hz · `/opt/anaconda3/bin/python`
 
 **How this repo moves:** read this file first. Keep what is marked **keep**. Next code commit implements **next iteration** only. Recompute every number from data (`04` / `05` / `07`). Invariant: trial **SB25 = 531 frames, 8.506 m/s**. Permutations = **5,000**. Do not invent body mass. Blue = faster. Knee = ISB (flexion positive).
@@ -33,6 +11,39 @@
 Google XYZ below: *accomplished **X** as measured by **Y** by doing **Z***.
 
 ---
+
+## What it looks like
+
+<table>
+<tr>
+<td>
+<a href="figures/Block%20Start/block_exit_SB80.png"><img src="figures/Block%20Start/block_exit_SB80.png" width="100%" alt="SB80 block exit and first three steps"></a>
+<br><sub>SB80 stick figures from set through block exit and the first three steps.</sub>
+</td>
+<td>
+<a href="figures/pc1_anatomy.png"><img src="figures/pc1_anatomy.png" width="100%" alt="PC1 reconstructed on the skeleton"></a>
+<br><sub>Angle fPCA PC1 drawn on the skeleton at four points in the stride cycle (blue = faster; 1.75 m scale is drawing only).</sub>
+</td>
+</tr>
+<tr>
+<td>
+<a href="figures/model_comparison_loocv.png"><img src="figures/model_comparison_loocv.png" width="100%" alt="Leave-one-out kinematic model comparison"></a>
+<br><sub>Leave-one-out R² for kinematic models of peak velocity; the audited headline remains knee ROM + height.</sub>
+</td>
+<td>
+<a href="figures/velocity_bspline_fit.png"><img src="figures/velocity_bspline_fit.png" width="100%" alt="Pelvis speed with a penalised B-spline"></a>
+<br><sub>Pelvis AP speed with a penalised B-spline so peak velocity is read from the curve, not the noisy derivative.</sub>
+</td>
+</tr>
+<tr>
+<td>
+<a href="opensim/out/SB25_summary.png"><img src="opensim/out/SB25_summary.png" width="100%" alt="OpenSim IK vs pipeline on SB25"></a>
+<br><sub>SB25 OpenSim gait2392 IK against the pipeline (experimental, isolated). IK is the mass-free deliverable; ID moments use generic mass.</sub>
+</td>
+<td></td>
+</tr>
+</table>
+
 
 ## Keep (do not regress)
 
@@ -149,7 +160,7 @@ Priority order. Each item: keep the good above.
 
 ### Portable paths (`project_paths.py`)
 
-- Derives `Pipeline/` and the project root from `project_paths.py`; moving the whole project does not require editing source. `Pipeline/` lives inside `(2) Data (C,P,A)/`; the project root is the nearest folder containing `(2) Data (C,P,A)`.
+- Derives `Pipeline/` and the project root from `project_paths.py`; moving the whole project does not require editing source. `Pipeline/` sits at the project root alongside the numbered folders; the project root is the nearest ancestor containing `(2) Data (C,P,A)`.
 - Prefers data under `(2) Data (C,P,A)/31 Trials Data Folder`. A symlink at the old root name `31 Trials Data Folder` remains so leftover scripts still resolve.
 - Resolves `(1) Research Resources` and `(3) Manuscripts, Presentations` directly.
 - Override locations without editing code:
