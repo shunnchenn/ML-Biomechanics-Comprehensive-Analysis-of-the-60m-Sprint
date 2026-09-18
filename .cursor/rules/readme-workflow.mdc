@@ -1,0 +1,13 @@
+---
+description: README-driven commit workflow — keep the good, implement Next iteration
+alwaysApply: true
+---
+
+# README-driven next commit
+
+Before new analysis code, read `README.md`.
+
+- **Keep** the Keep section (mass-free, no dummy kg, audited `X` untouched, SB25 531/8.506, 5000 shuffles, isolated 06/07).
+- **Next commit** implements the first unchecked item under **Next iteration**, smallest change, numbers recomputed in 04/05/07.
+- After that work: update README (What / Why / How / XYZ, Keep vs Next), then commit. Do not start a new direction that is not on Next iteration without updating README first.
+- Do not treat `a0` and `RFmax` as two findings. Do not cycle-average acceleration steps. Do not report OpenSim ID N·m as athlete-specific.
