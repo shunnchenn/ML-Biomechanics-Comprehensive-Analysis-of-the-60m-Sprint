@@ -52,7 +52,16 @@ def _data_root() -> Path:
 
 
 PIPELINE_ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = _env_path("SPRINT_PROJECT_ROOT") or PIPELINE_ROOT.parent
+def _project_root() -> Path:
+    """Nearest ancestor holding the numbered data folder, so Pipeline/ can sit
+    at the project root or inside `(2) Data (C,P,A)`. Falls back to the parent."""
+    for parent in PIPELINE_ROOT.parents:
+        if (parent / "(2) Data (C,P,A)").is_dir():
+            return parent
+    return PIPELINE_ROOT.parent
+
+
+PROJECT_ROOT = _env_path("SPRINT_PROJECT_ROOT") or _project_root()
 
 RESEARCH_ROOT = _env_path("SPRINT_RESEARCH_ROOT") or (
     PROJECT_ROOT / "(1) Research Resources"
