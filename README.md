@@ -124,7 +124,7 @@ Priority order. Each item: keep the good above.
 ### Portable paths (`project_paths.py`)
 
 - Derives `Pipeline/` and the project root from `project_paths.py`; moving the whole project does not require editing source.
-- Prefers data placed under `(2) Data (C,P,A)` once populated; currently falls back to the live `31 Trials Data Folder`.
+- Prefers data under `(2) Data (C,P,A)/31 Trials Data Folder`. A symlink at the old root name `31 Trials Data Folder` remains so leftover scripts still resolve.
 - Resolves `(1) Research Resources` and `(3) Manuscripts, Presentations` directly.
 - Override locations without editing code:
 
@@ -148,7 +148,7 @@ All current notebooks import `PATHS` in their first executable cell. Notebook 05
 - `opensim/` — SB25 experiment files (not `_extract/` tutorials).
 - `(3) Manuscripts, Presentations/Abstracts, Manuscripts/60m_Sprint_Kinematics_Leakage_Ledger_Manuscript.md` — current big-picture-to-detail write-up; legacy claims are explicitly retained, corrected, or retired.
 - `LEGACY_ANALYSIS_MAP.md` — file-by-file crosswalk from the old notebooks/scripts to the current evidence hierarchy.
-- `Shun's Sprints Code/` and `Old Outputs/` — historical archive. Use for qualitative context; do not cite old ML scores over 05/07.
+- `(4) Archive/Shun's Sprints Code` and `(4) Archive/Old Outputs` — historical archive (symlinks remain at the old root names). Use for qualitative context; do not cite old ML scores over 05/07.
 
 ---
 
