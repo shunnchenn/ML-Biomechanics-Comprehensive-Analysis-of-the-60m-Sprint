@@ -79,6 +79,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.figure import Figure
 
 import sprint_pipeline as SP
+from project_paths import FIGURES_DIR, MP4_DIR
 from sprint_pipeline import (
     # paths and cohort
     HERE, C3D_DIR, EXCLUDED_PIDS, SPRINT_DIST_M, PARTICIPANT_ANTHRO,
@@ -100,8 +101,8 @@ from sprint_pipeline import (
 # ── Output directories ──────────────────────────────────────────────────────
 # The MP4s get their own folder. The output run writes one per athlete, so
 # thirty-odd videos would otherwise be mixed in with the PNGs.
-FIG_OUT = HERE / "figures"; FIG_OUT.mkdir(exist_ok=True)
-MP4_OUT = HERE / "mp4s";    MP4_OUT.mkdir(exist_ok=True)
+FIG_OUT = FIGURES_DIR; FIG_OUT.mkdir(parents=True, exist_ok=True)
+MP4_OUT = MP4_DIR;     MP4_OUT.mkdir(parents=True, exist_ok=True)
 
 # Anything produced once PER ATHLETE goes in its own Title Case subfolder, so a
 # cohort-wide set stays together and never buries the handful of figures that

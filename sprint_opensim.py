@@ -64,6 +64,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from project_paths import OPENSIM_CMD as CONFIGURED_OPENSIM_CMD
+from project_paths import OPENSIM_DIR
 import sprint_pipeline as sp   # READ-ONLY reuse of loaders / angles / constants
 
 
@@ -72,7 +74,6 @@ import sprint_pipeline as sp   # READ-ONLY reuse of loaders / angles / constants
 # ==========================================================================
 
 HERE          = Path(__file__).resolve().parent
-OPENSIM_DIR   = HERE / "opensim"
 MODELS_DIR    = OPENSIM_DIR / "models"
 TRC_DIR       = OPENSIM_DIR / "trc"
 SETUP_DIR     = OPENSIM_DIR / "setup"
@@ -82,7 +83,7 @@ LOG_DIR       = OPENSIM_DIR / "logs"
 MODEL_UNSCALED = MODELS_DIR / "gait2392_simbody.osim"
 
 # The bundled CLI from the installed OpenSim 4.5 GUI app. No Python bindings.
-OPENSIM_CMD = "/Applications/OpenSim 4.5/bin/opensim-cmd"
+OPENSIM_CMD = str(CONFIGURED_OPENSIM_CMD)
 
 # gait2392's own nominal total mass. The anthropometrics sheet has NO mass
 # column. ScaleTool <mass> is left at -1 (generic masses kept). ID moments use
@@ -555,7 +556,7 @@ def run_tool(setup_path, log_name=None):
     log_name = log_name or (setup_path.stem + ".log")
     log_path = LOG_DIR / log_name
     env = dict(os.environ)
-    home = Path("/Applications/OpenSim 4.5")
+    home = Path(OPENSIM_CMD).resolve().parent.parent
     lib_dirs = [home / "lib", home / "sdk" / "lib",
                 home / "sdk" / "Simbody" / "lib", home / "bin"]
     extra = ":".join(str(p) for p in lib_dirs if p.exists())

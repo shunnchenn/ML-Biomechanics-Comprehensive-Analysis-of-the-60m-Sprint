@@ -25,8 +25,6 @@ notebook's plotting backend.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import ezc3d
 import numpy as np
 import pandas as pd
@@ -35,6 +33,12 @@ from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 from scipy.interpolate import BSpline
 
+from project_paths import (
+    ANTHRO_PATH,
+    C3D_DIR,
+    DATA_ROOT,
+    PIPELINE_ROOT as HERE,
+)
 
 
 # ==========================================================================
@@ -43,12 +47,8 @@ from scipy.interpolate import BSpline
 
 # ── Paths ───────────────────────────────────────────────────────────────────
 # Output directories (figures/, mp4s/) belong to sprint_outputs.py — this module
-# writes no files.
-HERE = Path(__file__).resolve().parent
-
-DATA_ROOT   = Path("/Users/shunchen/Desktop/60m Project Folder/31 Trials Data Folder")
-C3D_DIR     = DATA_ROOT / "C3D, XLSX" / "Sprint Trials in c3d"
-ANTHRO_PATH = DATA_ROOT / "60m Participant Anthropometrics.xlsx"
+# writes no files. Shared locations come from `project_paths.py`, which derives
+# the project root from its own file and supports environment overrides.
 
 # ── Capture settings ────────────────────────────────────────────────────────
 SAMPLING_RATE   = 60          # frames per second

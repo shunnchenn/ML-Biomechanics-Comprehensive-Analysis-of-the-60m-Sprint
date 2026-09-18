@@ -23,16 +23,24 @@ Google XYZ below: *accomplished **X** as measured by **Y** by doing **Z***.
 
 Priority order. Each item: keep the good above.
 
-1. **Stop averaging acceleration onto a cycle.** `build_feature_table` still feeds alternate-foot first steps into `stride_cycle_angles`. Treat steps as a *process* (Section 12 / notebook 07). Same-foot windows only if you still need a cycle.
-2. **Do not over-claim `a0` as technique.** It summarises the pelvis v(t) *rise*, so it sits closer to peak speed than a joint angle. Next: step-level spatiotemporal / touchdown geometry (still mass-free), pre-specified, nested or univariate + 5,000 shuffles, control for contact-time window length.
-3. **Coordination (vector coding / CRP)** on existing 101-point cycles — the manuscript’s arm–leg story, measured. Pre-specify pairs. Isolated from audited `X`.
-4. **fPCA without per-angle unit-variance** (`standardize=False` in fold-refit `fpca_fold_transform`) so PC1 is not handed to trunk lean. Default `True` to protect 01/04 numbers.
-5. **OpenSim:** batch IK (angles only) if needed; do not report stance ID or athlete-specific moments without measured mass.
-6. **Leave for later:** mixed-effects on ≤5 top-speed strides/athlete; mass-free spring stiffness `k/m`; PyMC (new dep — external only).
+- [x] **Make paths portable and explain the project big-picture-first.** `project_paths.py` now derives the project root, supports environment overrides, and all current modules/notebooks import it. `00_Project_Overview.ipynb` is the reader entry point. Raw data was not moved.
+- [ ] **Stop averaging acceleration onto a cycle.** `build_feature_table` still feeds alternate-foot first steps into `stride_cycle_angles`. Treat steps as a *process* (Section 12 / notebook 07). Same-foot windows only if you still need a cycle.
+- [ ] **Do not over-claim `a0` as technique.** It summarises the pelvis v(t) *rise*, so it sits closer to peak speed than a joint angle. Next: step-level spatiotemporal / touchdown geometry (still mass-free), pre-specified, nested or univariate + 5,000 shuffles, control for contact-time window length.
+- [ ] **Coordination (vector coding / CRP)** on existing 101-point cycles — the manuscript’s arm–leg story, measured. Pre-specify pairs. Isolated from audited `X`.
+- [ ] **fPCA without per-angle unit-variance** (`standardize=False` in fold-refit `fpca_fold_transform`) so PC1 is not handed to trunk lean. Default `True` to protect 01/04 numbers.
+- [ ] **OpenSim:** batch IK (angles only) if needed; do not report stance ID or athlete-specific moments without measured mass.
+- [ ] **Leave for later:** mixed-effects on ≤5 top-speed strides/athlete; mass-free spring stiffness `k/m`; PyMC (new dep — external only).
 
 ---
 
 ## Notebooks
+
+### `00_Project_Overview.ipynb` — start here
+
+- **What:** Big-picture research questions, current takeaways, evidence hierarchy, and reading order.
+- **Why:** Lets a new reader understand the project before opening implementation details.
+- **How:** Reads `PATHS`; performs no modelling and writes no outputs.
+- **XYZ:** Reduced entry-point ambiguity as measured by one ordered map from sprint regimes to validation and provenance by separating overview from analysis.
 
 ### `sprint_pipeline.ipynb` — preprocess QA
 
@@ -113,6 +121,24 @@ Priority order. Each item: keep the good above.
 
 `sprint_opensim.py`: TRC/Scale/IK/ID wrappers. `sprint_outputs.py`: figures/MP4s. **Do not edit `sprint_helpers.py`.**
 
+### Portable paths (`project_paths.py`)
+
+- Derives `Pipeline/` and the project root from `project_paths.py`; moving the whole project does not require editing source.
+- Prefers data placed under `(2) Data (C,P,A)` once populated; currently falls back to the live `31 Trials Data Folder`.
+- Resolves `(1) Research Resources` and `(3) Manuscripts, Presentations` directly.
+- Override locations without editing code:
+
+```bash
+export SPRINT_PROJECT_ROOT="/path/to/60m Project Folder"
+export SPRINT_DATA_ROOT="/path/to/data"
+export SPRINT_C3D_DIR="/path/to/c3d"
+export SPRINT_ANTHRO_PATH="/path/to/anthropometrics.xlsx"
+export SPRINT_MANUSCRIPT_DIR="/path/to/manuscripts"
+export SPRINT_OPENSIM_CMD="/path/to/opensim-cmd"
+```
+
+All current notebooks import `PATHS` in their first executable cell. Notebook 05 writes through `PATHS.results`, not the kernel working directory.
+
 ---
 
 ## Other tracked artefacts
@@ -120,6 +146,9 @@ Priority order. Each item: keep the good above.
 - `results/*.csv` — ledger exports from 05.
 - `SSAC27_Abstract.md` — Sloan draft; numbers must match 05 after any upstream change.
 - `opensim/` — SB25 experiment files (not `_extract/` tutorials).
+- `(3) Manuscripts, Presentations/Abstracts, Manuscripts/60m_Sprint_Kinematics_Leakage_Ledger_Manuscript.md` — current big-picture-to-detail write-up; legacy claims are explicitly retained, corrected, or retired.
+- `LEGACY_ANALYSIS_MAP.md` — file-by-file crosswalk from the old notebooks/scripts to the current evidence hierarchy.
+- `Shun's Sprints Code/` and `Old Outputs/` — historical archive. Use for qualitative context; do not cite old ML scores over 05/07.
 
 ---
 
